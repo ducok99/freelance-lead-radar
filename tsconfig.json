@@ -1,0 +1,8 @@
+{
+  "extends": "./tsconfig.base.json",
+  "compilerOptions": {
+    // tests/setup.ts chặn globalThis.fetch → cần khai báo kiểu fetch từ lib DOM
+    "lib": ["ES2022", "DOM"]
+  },
+  "include": ["tests/**/*.ts", "types/**/*.d.ts", "vitest.config.ts"]
+}

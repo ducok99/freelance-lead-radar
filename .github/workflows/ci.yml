@@ -1,0 +1,40 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+# Quyền tối thiểu: chỉ đọc code, không ghi gì lên repo.
+permissions:
+  contents: read
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+        # version lấy từ trường packageManager trong package.json
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: pnpm
+
+      - name: Cài dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Chặn secret trong repo (SECURITY.md §6)
+        run: pnpm check-secrets
+
+      - name: Typecheck
+        run: pnpm typecheck
+
+      - name: Lint (kèm rule an toàn SECURITY.md §3)
+        run: pnpm lint
+
+      - name: Unit + contract tests
+        run: pnpm test

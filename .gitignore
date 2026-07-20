@@ -1,0 +1,18 @@
+# Dependencies & build
+node_modules/
+dist/
+coverage/
+.turbo/
+
+# Secrets — KHÔNG BAO GIỜ commit (SECURITY.md §6)
+.dev.vars
+.env
+.env.*
+
+# Playwright (từ Phase 5)
+playwright-report/
+test-results/
+
+# Hệ điều hành / editor
+.DS_Store
+*.log

@@ -1,0 +1,10 @@
+packages:
+  - "apps/*"
+  - "workers/*"
+  - "packages/*"
+
+# pnpm 10: cấu hình cho phép dependency chạy build script nằm tại đây
+# (trường pnpm.onlyBuiltDependencies trong package.json đã bị pnpm 10 bỏ qua).
+# Chỉ esbuild được phép chạy build script.
+onlyBuiltDependencies:
+  - esbuild

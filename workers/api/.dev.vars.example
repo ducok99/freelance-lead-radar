@@ -1,0 +1,5 @@
+# Copy file này thành `.dev.vars` (đã nằm trong .gitignore) khi chạy
+# `wrangler dev` local từ Phase 4. KHÔNG BAO GIỜ commit file .dev.vars.
+# Production dùng: wrangler secret put ANTHROPIC_API_KEY / TEAM_TOKEN
+ANTHROPIC_API_KEY=dien_key_that_vao_day_khi_dev_local
+TEAM_TOKEN=tu_dat_mot_chuoi_ngau_nhien_dai
