@@ -3,6 +3,7 @@ node_modules/
 dist/
 coverage/
 .turbo/
+.wrangler/
 
 # Secrets — KHÔNG BAO GIỜ commit (SECURITY.md §6)
 .dev.vars
@@ -16,4 +17,3 @@ test-results/
 # Hệ điều hành / editor
 .DS_Store
 *.log
-workers/api/.wrangler/

@@ -1,7 +1,7 @@
 # BÁO CÁO PHASE P4 — WORKERS API
 
 Ngày: 2026-07-20  
-Trạng thái: Hoàn thành code + QA tự động; chờ smoke test `wrangler dev` trên máy DUC và nghiệm thu
+Trạng thái: ✅ DUC chính thức duyệt ngày 2026-07-20; P5 được phép bắt đầu
 
 ## 1. Kết quả
 
@@ -101,4 +101,7 @@ DUC thực hiện đúng `workers/api/README.md`:
 
 ## 10. Điều kiện nghiệm thu
 
-P4 chỉ được xem là hoàn tất acceptance sau khi smoke test `wrangler dev` + ba curl trên máy DUC xanh và GitHub Actions của commit P4 xanh. Chỉ sau khi DUC trả lời rõ **“Tôi chính thức duyệt P4”** mới được bắt đầu P5.
+DUC đã chạy `wrangler dev`, xác nhận ba endpoint health/classify/draft đều đạt,
+GitHub Actions xanh trên commit `5b9ccf9`, rồi trả lời rõ
+**“Tôi chính thức duyệt P4”** ngày 2026-07-20. P5 được phép bắt đầu;
+P6 vẫn chưa được phép.

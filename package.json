@@ -4,14 +4,16 @@
   "version": "0.0.0",
   "packageManager": "pnpm@10.28.0",
   "engines": {
-    "node": ">=20"
+    "node": ">=20.19.0"
   },
   "scripts": {
+    "build": "turbo run build",
     "typecheck": "turbo run typecheck && tsc --noEmit -p tsconfig.json",
     "lint": "eslint . && prettier --check .",
     "lint:fix": "eslint . --fix && prettier --write .",
     "test": "vitest run",
     "test:coverage": "vitest run --coverage",
+    "test:e2e": "pnpm --filter @flr/extension e2e",
     "check-secrets": "bash scripts/check-secrets.sh",
     "check-api-safety": "bash scripts/check-api-safety.sh"
   },

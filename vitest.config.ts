@@ -12,11 +12,16 @@ export default defineConfig({
     coverage: {
       provider: "v8",
       include: [
+        "apps/extension/src/background/controller.ts",
+        "apps/extension/src/content/gate.ts",
+        "apps/extension/src/lib/**/*.ts",
         "packages/rules-engine/src/**/*.ts",
         "packages/facebook-adapter/src/**/*.ts",
         "workers/api/src/**/*.ts",
       ],
       exclude: [
+        "apps/extension/src/**/*.test.ts",
+        "apps/extension/src/test/**",
         "{packages/{rules-engine,facebook-adapter},workers/api}/src/**/*.test.ts",
         "packages/facebook-adapter/src/**/*.d.ts",
         "packages/facebook-adapter/src/selectors.ts",
@@ -35,6 +40,9 @@ export default defineConfig({
           lines: 80,
         },
         "workers/api/src/**": {
+          lines: 80,
+        },
+        "apps/extension/src/**": {
           lines: 80,
         },
       },

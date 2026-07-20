@@ -44,5 +44,14 @@ jobs:
       - name: Unit + contract tests
         run: pnpm test
 
-      - name: Coverage rules-engine >= 90% + adapter/API >= 80%
+      - name: Coverage rules-engine >= 90% + adapter/API/extension >= 80%
         run: pnpm test:coverage
+
+      - name: Build Chrome Extension MV3
+        run: pnpm --filter @flr/extension build
+
+      - name: Cài Chromium cho kiểm thử Extension
+        run: pnpm --filter @flr/extension exec playwright install --with-deps chromium
+
+      - name: E2E nhóm ngoài allowlist không tạo lead
+        run: pnpm --filter @flr/extension e2e

@@ -1,5 +1,5 @@
-/**
- * Phase 0: khung package. Logic thật sẽ được thêm theo đúng phase
- * trong docs/IMPLEMENTATION-PLAN.md — không thêm trước khi phase được duyệt.
- */
-export const PACKAGE_NAME = "@flr/extension";
+export * from "./background/controller";
+export * from "./content/gate";
+export * from "./lib/group-url";
+export * from "./lib/storage";
+export * from "./lib/ulid";
