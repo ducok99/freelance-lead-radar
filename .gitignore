@@ -16,3 +16,4 @@ test-results/
 # Hệ điều hành / editor
 .DS_Store
 *.log
+workers/api/.wrangler/

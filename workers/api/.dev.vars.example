@@ -1,5 +1,11 @@
-# Copy file này thành `.dev.vars` (đã nằm trong .gitignore) khi chạy
-# `wrangler dev` local từ Phase 4. KHÔNG BAO GIỜ commit file .dev.vars.
-# Production dùng: wrangler secret put ANTHROPIC_API_KEY / TEAM_TOKEN
-ANTHROPIC_API_KEY=dien_key_that_vao_day_khi_dev_local
-TEAM_TOKEN=tu_dat_mot_chuoi_ngau_nhien_dai
+# Copy file này thành `.dev.vars` (đã gitignore) khi chạy local.
+# P4 mặc định dùng MockProvider nên KHÔNG cần ANTHROPIC_API_KEY.
+# Không commit `.dev.vars`. Production dùng `wrangler secret put`.
+TEAM_TOKEN=local_only_change_this_token
+
+# Chỉ bỏ comment khi chủ động test Anthropic local và đã đổi
+# provider sang Anthropic:
+# AI_PROVIDER=anthropic
+# ANTHROPIC_API_KEY=put_local_key_here
+# ANTHROPIC_CLASSIFY_MODEL=put_approved_model_here
+# ANTHROPIC_DRAFT_MODEL=put_approved_model_here

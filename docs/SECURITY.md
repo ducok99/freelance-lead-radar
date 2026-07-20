@@ -1,6 +1,6 @@
 # SECURITY — FREELANCE LEAD RADAR
 
-v0.4 — 2026-07-20 — cập nhật theo Phase 3.
+v0.5 — 2026-07-20 — cập nhật theo Phase 4.
 
 Tài liệu này biến "QUY TẮC AN TOÀN TUYỆT ĐỐI" trong spec thành **bất biến có vị trí thực thi cụ thể trong code và test bảo vệ**. Mọi phase triển khai phải đối chiếu bảng §3 trước khi merge.
 
@@ -43,7 +43,7 @@ Tài liệu này biến "QUY TẮC AN TOÀN TUYỆT ĐỐI" trong spec thành **
 | 14  | Không dùng dữ liệu FB ngoài mục đích xử lý lead hiện tại | Backend MVP stateless với nội dung bài (không ghi D1 khi chưa tới giai đoạn 2); retention purge; không analytics bên thứ ba | Review + test purge                                                                                   |
 | 15  | MVP không tự đăng dù ≥ 95 điểm                           | `facebook-adapter` KHÔNG export hàm submit; không listener tự click nút Đăng                                                | Test tĩnh: import surface của adapter không chứa `submit*`; e2e: lead 97 điểm vẫn dừng ở needs_review |
 
-Phase 1 đã triển khai phần schema của các bất biến #1 và #10. Phase 2 bổ sung gate thuần cho allowlist, Emergency Stop, dedupe, daily limit và circuit breaker. Phase 3 triển khai adapter đọc DOM, parser URL, phát hiện checkpoint/CAPTCHA/banner chặn và locator ô bình luận; export surface được khóa bằng allowlist chỉ-đọc, không có fill/submit/click. Enforcement ba lớp và thao tác điền chỉ xuất hiện đúng P5–P9.
+Phase 1 đã triển khai phần schema của các bất biến #1 và #10. Phase 2 bổ sung gate thuần cho allowlist, Emergency Stop, dedupe, daily limit và circuit breaker. Phase 3 triển khai adapter đọc DOM, parser URL, phát hiện checkpoint/CAPTCHA/banner chặn và locator ô bình luận; export surface được khóa bằng allowlist chỉ-đọc, không có fill/submit/click. Phase 4 triển khai Worker stateless: request schema không nhận credential Facebook, không có dependency/browser call Facebook, log chỉ metadata và provider test dùng MockProvider. Enforcement ba lớp và thao tác điền chỉ xuất hiện đúng P5–P9.
 
 ## 4. Quyền extension — tối thiểu và giải trình
 
@@ -58,9 +58,9 @@ Cố tình KHÔNG xin: `tabs`, `cookies`, `webRequest`, `scripting`, `history`, 
 ## 5. Bảo vệ Workers API
 
 - Auth: `Authorization: Bearer <TEAM_TOKEN>`; token do đội trưởng phát hành khi deploy (wrangler secret), so sánh constant-time. Sai/thiếu → 401, không phân biệt lý do.
-- Rate limit: 60 req/phút/token; vượt → 429.
+- Rate limit: 60 req/phút/token qua Cloudflare Rate Limiting binding, khóa là SHA-256 của token; test/dev không có binding dùng fallback cô lập trong bộ nhớ. Vượt → 429. Binding có tính permissive/eventual-consistent theo hạ tầng Cloudflare, không dùng làm hệ thống kế toán tuyệt đối.
 - CORS: chỉ `chrome-extension://<EXTENSION_ID>` (cấu hình qua env var, cập nhật khi có ID chính thức).
-- Payload ≤ 64KB; batch ≤ 10 bài/request; zod validate mọi input/output; lỗi validate → 400 kèm mã, không echo dữ liệu vào.
+- Payload ≤ 64KB; body không có `Content-Length` được đọc theo luồng và dừng ngay khi vượt giới hạn; batch ≤ 10 bài/request; zod validate mọi input/output; lỗi validate → 400 kèm mã, không echo dữ liệu vào.
 - Timeout gọi AI + retry tối đa 1 lần; lỗi provider → 502 mã `ai_unavailable`, extension hiển thị trạng thái, KHÔNG tự suy diễn điểm.
 - Log: timestamp, route, status, latency, độ dài input. **Không log nội dung bài, không log token, không log key.**
 
@@ -99,6 +99,8 @@ Hành vi khi trip: (1) dừng extract + hủy hàng đợi gọi AI + vô hiệu
 
 ## 11. An toàn chuỗi cung ứng
 
-- Khóa version bằng lockfile; hạn chế dependency mới (thêm phải nêu lý do trong PR — quy tắc trong CLAUDE.md).
+- Khóa version bằng lockfile; hạn chế dependency mới (thêm phải nêu lý do trong PR — quy tắc trong CLAUDE.md). P4 thêm chính xác `hono@4.12.31` và `wrangler@4.112.0`; không thêm SDK HTTP/provider thừa.
+- Lifecycle script của dependency chạy theo allowlist fail-closed: chỉ `esbuild` và `workerd` được phép; `sharp` bị chặn rõ ràng; dependency mới chưa review làm install thất bại.
 - Không remote code trong extension (MV3 cấm sẵn); không `eval`; CSP mặc định MV3.
+- CI chạy `check-api-safety`: cấm từ khóa Facebook bot/proxy/stealth và dependency browser/proxy trong `workers/api`.
 - `pnpm audit` chạy trong CI ở mức cảnh báo; nâng chặn ở giai đoạn 2.

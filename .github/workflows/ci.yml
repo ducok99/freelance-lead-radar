@@ -32,6 +32,9 @@ jobs:
       - name: Chặn secret trong repo (SECURITY.md §6)
         run: pnpm check-secrets
 
+      - name: Chặn Facebook bot/proxy trong Workers (SECURITY.md §3)
+        run: pnpm check-api-safety
+
       - name: Typecheck
         run: pnpm typecheck
 
@@ -41,5 +44,5 @@ jobs:
       - name: Unit + contract tests
         run: pnpm test
 
-      - name: Coverage rules-engine >= 90% + adapter >= 80%
+      - name: Coverage rules-engine >= 90% + adapter/API >= 80%
         run: pnpm test:coverage

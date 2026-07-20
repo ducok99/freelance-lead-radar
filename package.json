@@ -12,7 +12,8 @@
     "lint:fix": "eslint . --fix && prettier --write .",
     "test": "vitest run",
     "test:coverage": "vitest run --coverage",
-    "check-secrets": "bash scripts/check-secrets.sh"
+    "check-secrets": "bash scripts/check-secrets.sh",
+    "check-api-safety": "bash scripts/check-api-safety.sh"
   },
   "devDependencies": {
     "@eslint/js": "^9.0.0",

@@ -14,14 +14,17 @@ export default defineConfig({
       include: [
         "packages/rules-engine/src/**/*.ts",
         "packages/facebook-adapter/src/**/*.ts",
+        "workers/api/src/**/*.ts",
       ],
       exclude: [
-        "packages/{rules-engine,facebook-adapter}/src/**/*.test.ts",
+        "{packages/{rules-engine,facebook-adapter},workers/api}/src/**/*.test.ts",
         "packages/facebook-adapter/src/**/*.d.ts",
         "packages/facebook-adapter/src/selectors.ts",
         "packages/facebook-adapter/src/index.ts",
         "packages/rules-engine/src/fixtures/**",
         "packages/rules-engine/src/index.ts",
+        "workers/api/src/test-fixtures.ts",
+        "workers/api/src/types.ts",
       ],
       thresholds: {
         lines: 80,
@@ -29,6 +32,9 @@ export default defineConfig({
           lines: 90,
         },
         "packages/facebook-adapter/src/**": {
+          lines: 80,
+        },
+        "workers/api/src/**": {
           lines: 80,
         },
       },

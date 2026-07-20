@@ -77,4 +77,4 @@ Toàn bộ chuỗi kiểm tra được chạy lại trong một thư mục sạc
 
 ## 9. Điều kiện nghiệm thu
 
-DUC kiểm tra báo cáo và GitHub Actions của commit P3. Chỉ sau khi DUC trả lời rõ **“Tôi chính thức duyệt P3”** mới được bắt đầu P4.
+DUC đã trả lời rõ **“Tôi chính thức duyệt P3”** ngày 2026-07-20 sau khi local QA và GitHub Actions của commit `f4a8ba2` đều xanh. P4 được phép bắt đầu; P5 vẫn chưa được phép.

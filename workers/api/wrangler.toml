@@ -1,0 +1,32 @@
+name = "freelance-lead-radar-api"
+main = "src/index.ts"
+compatibility_date = "2026-07-20"
+
+# Local P4 dùng MockProvider: không cần key AI và không gọi mạng.
+[vars]
+AI_PROVIDER = "mock"
+EXTENSION_ORIGIN = "chrome-extension://test-extension-id"
+
+[[ratelimits]]
+name = "API_RATE_LIMITER"
+namespace_id = "4702001"
+
+  [ratelimits.simple]
+  limit = 60
+  period = 60
+
+# Trước khi deploy production: thay EXTENSION_ORIGIN và hai model bằng giá trị
+# đã duyệt. TEAM_TOKEN/ANTHROPIC_API_KEY luôn đặt bằng `wrangler secret put`.
+[env.production.vars]
+AI_PROVIDER = "anthropic"
+EXTENSION_ORIGIN = "chrome-extension://REPLACE_AFTER_P5"
+ANTHROPIC_CLASSIFY_MODEL = "REPLACE_WITH_APPROVED_CLASSIFY_MODEL"
+ANTHROPIC_DRAFT_MODEL = "REPLACE_WITH_APPROVED_DRAFT_MODEL"
+
+[[env.production.ratelimits]]
+name = "API_RATE_LIMITER"
+namespace_id = "4702001"
+
+  [env.production.ratelimits.simple]
+  limit = 60
+  period = 60
