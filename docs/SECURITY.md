@@ -1,6 +1,6 @@
 # SECURITY — FREELANCE LEAD RADAR
 
-v0.5 — 2026-07-20 — cập nhật theo Phase 4.
+v0.6 — 2026-07-20 — cập nhật theo Phase 6 candidate.
 
 Tài liệu này biến "QUY TẮC AN TOÀN TUYỆT ĐỐI" trong spec thành **bất biến có vị trí thực thi cụ thể trong code và test bảo vệ**. Mọi phase triển khai phải đối chiếu bảng §3 trước khi merge.
 
@@ -43,7 +43,7 @@ Tài liệu này biến "QUY TẮC AN TOÀN TUYỆT ĐỐI" trong spec thành **
 | 14  | Không dùng dữ liệu FB ngoài mục đích xử lý lead hiện tại | Backend MVP stateless với nội dung bài (không ghi D1 khi chưa tới giai đoạn 2); retention purge; không analytics bên thứ ba | Review + test purge                                                                                   |
 | 15  | MVP không tự đăng dù ≥ 95 điểm                           | `facebook-adapter` KHÔNG export hàm submit; không listener tự click nút Đăng                                                | Test tĩnh: import surface của adapter không chứa `submit*`; e2e: lead 97 điểm vẫn dừng ở needs_review |
 
-Phase 1 đã triển khai phần schema của các bất biến #1 và #10. Phase 2 bổ sung gate thuần cho allowlist, Emergency Stop, dedupe, daily limit và circuit breaker. Phase 3 triển khai adapter đọc DOM, parser URL, phát hiện checkpoint/CAPTCHA/banner chặn và locator ô bình luận; export surface được khóa bằng allowlist chỉ-đọc, không có fill/submit/click. Phase 4 triển khai Worker stateless: request schema không nhận credential Facebook, không có dependency/browser call Facebook, log chỉ metadata và provider test dùng MockProvider. Enforcement ba lớp và thao tác điền chỉ xuất hiện đúng P5–P9.
+Phase 1 đã triển khai phần schema của các bất biến #1 và #10. Phase 2 bổ sung gate thuần cho allowlist, Emergency Stop, dedupe, daily limit và circuit breaker. Phase 3 triển khai adapter đọc DOM, parser URL, phát hiện checkpoint/CAPTCHA/banner chặn và locator ô bình luận; export surface được khóa bằng allowlist chỉ-đọc, không có fill/submit/click. Phase 4 triển khai Worker stateless: request schema không nhận credential Facebook, không có dependency/browser call Facebook, log chỉ metadata và provider test dùng MockProvider. P5 triển khai gate content/background và Emergency Stop persist. P6 nối pipeline chỉ-đọc, kiểm tra lại allowlist/stop/daily limit ở background, dedupe bền vững, tự tiếp tục lead bị gián đoạn khi service worker khởi động lại, và side panel chỉ đổi dữ liệu local. P7 mới được phép thêm thao tác điền ô bình luận sau khi P6 được DUC duyệt.
 
 ## 4. Quyền extension — tối thiểu và giải trình
 
@@ -52,8 +52,10 @@ Phase 1 đã triển khai phần schema của các bất biến #1 và #10. Phas
 | `storage`                                      | Lưu settings, lead, audit local                         | Không cần server trong MVP                               |
 | `sidePanel`                                    | UI hàng đợi duyệt                                       | —                                                        |
 | `host_permissions: https://www.facebook.com/*` | Content script đọc DOM nhóm allowlist khi người dùng mở | Gate allowlist chạy ngay đầu; ngoài allowlist script ngủ |
+| `host_permissions: https://*.workers.dev/*`    | Background gọi Workers API đã cấu hình                  | Schema Settings chỉ nhận Workers.dev                     |
+| `host_permissions: localhost / 127.0.0.1`      | Mock API cho dev/E2E local                              | HTTP chỉ được schema cho phép với localhost              |
 
-Cố tình KHÔNG xin: `tabs`, `cookies`, `webRequest`, `scripting`, `history`, `notifications` (cân nhắc sau), `<all_urls>`. Thêm bất kỳ quyền nào = sửa tài liệu này + DUC duyệt.
+Cố tình KHÔNG xin: `tabs`, `cookies`, `webRequest`, `scripting`, `history`, `notifications` (cân nhắc sau), `<all_urls>`. Không cấp quyền HTTPS tổng quát; P6 chỉ gọi subdomain Workers.dev hoặc localhost. Thêm bất kỳ quyền nào = sửa tài liệu này + DUC duyệt.
 
 ## 5. Bảo vệ Workers API
 
@@ -95,7 +97,7 @@ Hành vi khi trip: (1) dừng extract + hủy hàng đợi gọi AI + vô hiệu
 ## 10. Audit log và Emergency Stop
 
 - Audit append-only (DATA-MODEL §2.6); export JSON/CSV để đối chiếu; mọi sự kiện đăng bình luận bắt buộc có mặt (bất biến #12).
-- Emergency Stop: một toggle, hiệu lực < 1 giây, chặn ở 3 lớp độc lập; trạng thái persist qua restart trình duyệt; bật/tắt đều ghi audit.
+- Emergency Stop: một toggle, content observer dừng ngay và background từ chối bài mới; trạng thái persist qua restart trình duyệt; bật/tắt đều ghi audit. Gate ba lớp đầy đủ trước thao tác ghi được hoàn thiện ở P7/P9.
 
 ## 11. An toàn chuỗi cung ứng
 

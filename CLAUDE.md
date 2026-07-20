@@ -75,8 +75,8 @@ pnpm -F api dev         # wrangler dev (cần .dev.vars, xem workers/api/README)
 | P2 rules-engine       | ✅ DUC duyệt 2026-07-20             | CI xanh commit `ddf7352`; xem PHASE-P2-REPORT.md     |
 | P3 fixtures + adapter | ✅ DUC duyệt 2026-07-20             | CI xanh commit `f4a8ba2`; xem PHASE-P3-REPORT.md     |
 | P4 workers/api        | ✅ DUC duyệt 2026-07-20             | CI xanh commit `5b9ccf9`; smoke 3 endpoint đạt       |
-| P5 khung extension    | 🟡 P5.1 chờ CI và DUC duyệt         | Smoke Chrome đạt; đã sửa tách đúng SW/content entry  |
-| P6 pipeline chỉ đọc   | ⬜                                  |                                                      |
+| P5 khung extension    | ✅ DUC duyệt 2026-07-20             | CI xanh commit `d6230ed`; smoke Chrome đạt           |
+| P6 pipeline chỉ đọc   | 🟡 Candidate v0.6.0 chờ nghiệm thu  | Local QA xanh; chờ E2E CI + smoke Chrome của DUC     |
 | P7 comment assist     | ⬜                                  | A-02 đã chốt (chèn sẵn, tự bấm Đăng)                 |
 | P8 dashboard page     | ⬜                                  |                                                      |
 | P9 hardening + beta   | ⬜                                  |                                                      |
@@ -96,4 +96,4 @@ pnpm -F api dev         # wrangler dev (cần .dev.vars, xem workers/api/README)
 | 2026-07-20 | Duyệt P2                         | DUC trả lời “Tôi chính thức duyệt P2”; CI xanh trên commit `ddf7352`; cho phép bắt đầu P3.                                                                                                                                                                                                        |
 | 2026-07-20 | Duyệt P3                         | DUC trả lời “Tôi chính thức duyệt P3”; CI xanh trên commit `f4a8ba2`; cho phép bắt đầu P4.                                                                                                                                                                                                        |
 | 2026-07-20 | Duyệt P4                         | DUC trả lời “Tôi chính thức duyệt P4”; local QA 364/364, smoke health/classify/draft đạt, CI xanh trên commit `5b9ccf9`; cho phép bắt đầu P5.                                                                                                                                                     |
-| 2026-07-20 | P5.1 smoke test                  | DUC xác nhận allowlist, side panel, Emergency Stop và trạng thái persist qua mở lại đều đạt trên Chrome Windows; còn chờ CI xanh và duyệt P5 bằng văn bản.                                                                                                                                        |
+| 2026-07-20 | Duyệt P5                         | DUC trả lời “Tôi chính thức duyệt P5”; smoke Chrome đạt và CI xanh trên commit `d6230ed`; cho phép bắt đầu P6.                                                                                                                                                                                    |

@@ -15,8 +15,7 @@ import {
   type HeuristicClassification,
 } from "./lexicon";
 
-export type GateBlockReason =
-  FilterReason | "ad_or_spam" | "emergency_stop" | "insufficient_text";
+export type GateBlockReason = FilterReason | "emergency_stop";
 
 export interface GateInput {
   text: string;
@@ -104,6 +103,10 @@ export const hardFilters = (input: HardFilterInput): HardFilterResult => {
   }
   if (input.classification === "fulltime_recruitment") {
     reasons.push("fulltime_recruitment");
+  }
+  if (input.classification === "ad_or_spam") reasons.push("ad_or_spam");
+  if (input.classification === "other") {
+    reasons.push("classification_rejected");
   }
   if (!input.teamSkills.includes(input.extractionField)) {
     reasons.push("no_team_skill_match");

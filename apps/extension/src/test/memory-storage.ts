@@ -11,4 +11,11 @@ export class MemoryStorage implements KeyValueStorage {
     this.values.set(key, structuredClone(value));
     return Promise.resolve();
   }
+
+  setMany(values: Readonly<Record<string, unknown>>): Promise<void> {
+    for (const [key, value] of Object.entries(values)) {
+      this.values.set(key, structuredClone(value));
+    }
+    return Promise.resolve();
+  }
 }

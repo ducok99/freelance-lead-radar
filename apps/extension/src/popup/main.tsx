@@ -143,7 +143,7 @@ const Popup = () => {
           Cài đặt
         </button>
       </div>
-      <span className="muted">P6 chưa bật quét bài</span>
+      <span className="muted">P6 đang chạy ở chế độ chỉ đọc</span>
     </main>
   );
 };

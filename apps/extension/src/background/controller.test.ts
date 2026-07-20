@@ -7,6 +7,15 @@ const createPorts = (storage: MemoryStorage) => ({
   storage,
   now: () => new Date("2026-07-20T08:00:00.000Z"),
   broadcast: vi.fn(() => Promise.resolve()),
+  pipeline: {
+    enqueue: vi.fn(() => Promise.resolve()),
+    recordExtractionFailure: vi.fn(() => Promise.resolve()),
+    recordSystemAudit: vi.fn(() => Promise.resolve()),
+    listLeads: vi.fn(() => Promise.resolve([])),
+    reviewLead: vi.fn(() => Promise.resolve({ ok: true, leads: [] })),
+    editDraft: vi.fn(() => Promise.resolve({ ok: true, leads: [] })),
+    retryLead: vi.fn(() => Promise.resolve({ ok: true, leads: [] })),
+  },
 });
 
 describe("background controller P5", () => {
@@ -57,6 +66,9 @@ describe("background controller P5", () => {
       type: "EMERGENCY_STOP_CHANGED",
       enabled: true,
     });
+    expect(ports.pipeline.recordSystemAudit).toHaveBeenCalledWith(
+      "emergency_stop_on",
+    );
   });
 
   it("warning trip circuit breaker và Emergency Stop", async () => {
@@ -77,7 +89,69 @@ describe("background controller P5", () => {
     });
   });
 
-  it("message không hợp lệ bị bỏ qua, P5 chưa xử lý POST_SEEN", async () => {
+  it("POST_SEEN chỉ vào pipeline khi sender và post cùng nhóm allowlist", async () => {
+    const storage = new MemoryStorage();
+    storage.values.set(STORAGE_KEYS.settings, {
+      ...DEFAULT_SETTINGS,
+      allowlist: [
+        {
+          groupId: "allowed",
+          name: "Allowed",
+          url: "https://www.facebook.com/groups/allowed",
+          active: true,
+        },
+      ],
+    });
+    const ports = createPorts(storage);
+    const message = {
+      type: "POST_SEEN" as const,
+      post: {
+        postKey: "allowed:101",
+        groupId: "allowed",
+        permalink: "https://www.facebook.com/groups/allowed/posts/101/",
+        text: "Cần thuê freelancer thiết kế logo.",
+        anonymousPoster: false,
+        truncated: false,
+        seenAt: "2026-07-20T08:00:00.000Z",
+      },
+    };
+
+    await handleBackgroundMessage(
+      message,
+      "https://www.facebook.com/groups/allowed",
+      ports,
+    );
+    expect(ports.pipeline.enqueue).toHaveBeenCalledWith(message.post);
+
+    await handleBackgroundMessage(
+      message,
+      "https://www.facebook.com/groups/other",
+      ports,
+    );
+    expect(ports.pipeline.enqueue).toHaveBeenCalledTimes(1);
+  });
+
+  it("UI lấy danh sách và action qua pipeline typed", async () => {
+    const storage = new MemoryStorage();
+    const ports = createPorts(storage);
+    await expect(
+      handleBackgroundMessage({ type: "GET_LEADS" }, undefined, ports),
+    ).resolves.toEqual({ type: "LEADS_UPDATED", leads: [] });
+
+    await expect(
+      handleBackgroundMessage(
+        {
+          type: "REVIEW_LEAD",
+          leadId: "01J2ZK8Q9M3T5V7X9A1C3E5G7J",
+          action: "approve",
+        },
+        undefined,
+        ports,
+      ),
+    ).resolves.toEqual({ type: "LEADS_UPDATED", leads: [] });
+  });
+
+  it("message không hợp lệ bị bỏ qua", async () => {
     const storage = new MemoryStorage();
     const ports = createPorts(storage);
     await expect(

@@ -75,6 +75,9 @@ test("nhóm ngoài allowlist không ghi lead, dedupe hay audit", async () => {
     expect(result.manifest.permissions).toEqual(["storage", "sidePanel"]);
     expect(result.manifest.host_permissions).toEqual([
       "https://www.facebook.com/*",
+      "https://*.workers.dev/*",
+      "http://localhost/*",
+      "http://127.0.0.1/*",
     ]);
     expect(result.observedMessageTypes).toContain("GET_GATE_STATE");
     expect(result.observedMessageTypes).not.toContain("POST_SEEN");

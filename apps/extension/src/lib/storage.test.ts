@@ -43,6 +43,7 @@ describe("extension storage", () => {
     const restartedStorage: KeyValueStorage = {
       get: (key) => storage.get(key),
       set: (key, value) => storage.set(key, value),
+      setMany: (values) => storage.setMany(values),
     };
     expect((await readSystemState(restartedStorage)).emergencyStop).toBe(true);
   });

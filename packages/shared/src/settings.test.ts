@@ -63,6 +63,18 @@ describe("SettingsSchema", () => {
     expect(result.success).toBe(true);
   });
 
+  it("chỉ cho API Workers.dev hoặc localhost đúng với host permission", () => {
+    expect(
+      SettingsSchema.safeParse({
+        apiBaseUrl: "https://freelance-lead-radar.example.workers.dev",
+      }).success,
+    ).toBe(true);
+    expect(
+      SettingsSchema.safeParse({ apiBaseUrl: "https://api.example.com" })
+        .success,
+    ).toBe(false);
+  });
+
   it("từ chối groupId trùng trong allowlist", () => {
     const group = {
       groupId: "group-1",

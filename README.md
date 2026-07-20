@@ -2,7 +2,7 @@
 
 Chrome Extension giúp đội trưởng nhóm freelancer Việt Nam phát hiện bài đăng thuê freelancer trong các nhóm Facebook thuộc allowlist — đọc thụ động ngay trong trình duyệt người dùng đã đăng nhập, chấm điểm 0–100, trích xuất thông tin, soạn bình luận nháp để **con người duyệt trước khi đăng**, lưu lead và phân công cho thành viên.
 
-**Trạng thái (cập nhật 2026-07-20):** P0–P4 đã được DUC duyệt; P4 local QA, ba endpoint smoke test và GitHub Actions đều xanh trên commit `5b9ccf9`. P5.1 đã sửa lỗi entry service worker và được DUC smoke test trên Chrome Windows (allowlist, side panel, Emergency Stop và lưu trạng thái đều đạt); còn chờ GitHub Actions xanh và DUC chính thức duyệt P5. Chưa bắt đầu P6.
+**Trạng thái (cập nhật 2026-07-20):** P0–P5 đã được DUC duyệt; P5.1 smoke Chrome Windows và GitHub Actions đều xanh trên commit `d6230ed`. P6 candidate v0.6.0 đã nối pipeline end-to-end **chỉ đọc**, đạt 407 unit/contract/safety test, coverage và build local; hai E2E Chromium đã viết, đang chờ GitHub Actions + smoke của DUC trước khi được duyệt. P7 chưa bắt đầu.
 
 ## Nguyên tắc cốt lõi
 
@@ -22,6 +22,7 @@ Chỉ đọc nội dung đang hiển thị trong nhóm allowlist; không bot ser
 | [docs/PHASE-P3-REPORT.md](docs/PHASE-P3-REPORT.md)         | Kết quả fixture, adapter chỉ đọc và rủi ro còn lại của Phase 3           |
 | [docs/PHASE-P4-REPORT.md](docs/PHASE-P4-REPORT.md)         | Kết quả Workers API, bảo mật, provider và bước smoke test của Phase 4    |
 | [docs/PHASE-P5-REPORT.md](docs/PHASE-P5-REPORT.md)         | Candidate MV3, QA, rủi ro và checklist nghiệm thu Phase 5                |
+| [docs/PHASE-P6-REPORT.md](docs/PHASE-P6-REPORT.md)         | Pipeline chỉ đọc, QA, rủi ro và checklist nghiệm thu Phase 6             |
 | [apps/extension/README.md](apps/extension/README.md)       | Hướng dẫn build, load unpacked và smoke test extension trên Windows      |
 | [CLAUDE.md](CLAUDE.md)                                     | Quy tắc làm việc bắt buộc cho phiên code, trạng thái phase               |
 

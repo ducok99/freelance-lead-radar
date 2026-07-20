@@ -15,6 +15,7 @@ const createRuntime = (response: unknown) => {
   const runtime: ContentRuntime = {
     body: {} as Node,
     sendMessage: vi.fn(() => Promise.resolve(response)),
+    scan: vi.fn(() => Promise.resolve()),
     createObserver: vi.fn(() => observer),
     addMessageListener: vi.fn((next) => {
       listener = next;
@@ -64,6 +65,7 @@ describe("content gate P5", () => {
       reason: "active",
     });
     expect(observer.observe).toHaveBeenCalledOnce();
+    expect(runtime.scan).toHaveBeenCalledOnce();
     emit({ type: "EMERGENCY_STOP_CHANGED", enabled: true });
     expect(observer.disconnect).toHaveBeenCalledOnce();
   });

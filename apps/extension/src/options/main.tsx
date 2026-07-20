@@ -111,7 +111,7 @@ const Options = () => {
         <span className="brand__mark">FL</span>
         <div>
           <h1>Cài đặt Freelance Lead Radar</h1>
-          <p className="muted">P5 — cấu hình local, chưa quét bài</p>
+          <p className="muted">P6 — pipeline chỉ đọc, cấu hình local</p>
         </div>
       </header>
 

@@ -8,6 +8,7 @@ export interface ObserverPort {
 export interface ContentRuntime {
   body: Node | null;
   sendMessage(message: unknown): Promise<unknown>;
+  scan(): Promise<void>;
   createObserver(callback: MutationCallback): ObserverPort;
   addMessageListener(listener: (message: unknown) => void): () => void;
 }
@@ -47,8 +48,28 @@ export const startContentGate = async (
   }
   if (runtime.body === null) return sleeping("unavailable");
 
-  // P5 chỉ gắn khung observer rỗng. Đọc/extract/gửi POST_SEEN thuộc P6.
-  const observer = runtime.createObserver(() => undefined);
+  let stopped = false;
+  let scanning = false;
+  let rescan = false;
+  const scan = async (): Promise<void> => {
+    if (stopped) return;
+    if (scanning) {
+      rescan = true;
+      return;
+    }
+    scanning = true;
+    try {
+      do {
+        rescan = false;
+        await runtime.scan();
+      } while (rescan && !stopped);
+    } finally {
+      scanning = false;
+    }
+  };
+
+  await scan();
+  const observer = runtime.createObserver(() => void scan());
   observer.observe(runtime.body, { childList: true, subtree: true });
   const removeListener = runtime.addMessageListener((message) => {
     const next = ExtensionMessageSchema.safeParse(message);
@@ -57,6 +78,7 @@ export const startContentGate = async (
       next.data.type === "EMERGENCY_STOP_CHANGED" &&
       next.data.enabled
     ) {
+      stopped = true;
       observer.disconnect();
     }
   });
@@ -65,6 +87,7 @@ export const startContentGate = async (
     active: true,
     reason: "active",
     stop() {
+      stopped = true;
       observer.disconnect();
       removeListener();
     },

@@ -73,9 +73,11 @@ export const ApiBaseUrlSchema = z.union([
     .url()
     .refine(
       (value) =>
-        value.startsWith("https://") ||
+        /^https:\/\/[a-z0-9-]+(?:\.[a-z0-9-]+)*\.workers\.dev(?::\d+)?(?:\/|$)/i.test(
+          value,
+        ) ||
         /^http:\/\/(?:localhost|127\.0\.0\.1)(?::\d+)?(?:\/|$)/i.test(value),
-      "API URL phải dùng HTTPS; HTTP chỉ được phép cho localhost",
+      "API URL phải thuộc workers.dev; HTTP chỉ được phép cho localhost",
     ),
 ]);
 

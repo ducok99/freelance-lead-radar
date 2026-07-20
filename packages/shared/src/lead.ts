@@ -52,6 +52,21 @@ export const ReplyDraftSchema = z
   .strict();
 export type ReplyDraft = z.infer<typeof ReplyDraftSchema>;
 
+export const ProcessingErrorSchema = z
+  .object({
+    code: z.enum([
+      "configuration_missing",
+      "network_error",
+      "api_error",
+      "invalid_response",
+    ]),
+    message: z.string().trim().min(1).max(300),
+    retryable: z.boolean(),
+    occurredAt: IsoDateTimeSchema,
+  })
+  .strict();
+export type ProcessingError = z.infer<typeof ProcessingErrorSchema>;
+
 export const LeadSchema = z
   .object({
     id: UlidSchema,
@@ -65,6 +80,7 @@ export const LeadSchema = z
     status: LeadStatusSchema,
     filterReasons: z.array(FilterReasonSchema).default([]),
     draft: ReplyDraftSchema.optional(),
+    processingError: ProcessingErrorSchema.optional(),
     finalComment: z.string().trim().min(1).max(2_000).optional(),
     approvedAt: IsoDateTimeSchema.optional(),
     commentedAt: IsoDateTimeSchema.optional(),

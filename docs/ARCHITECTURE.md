@@ -99,15 +99,20 @@ Quyền yêu cầu (tối thiểu tuyệt đối — mỗi quyền có giải tr
 ```jsonc
 {
   "permissions": ["storage", "sidePanel"],
-  "host_permissions": ["https://www.facebook.com/*"],
+  "host_permissions": [
+    "https://www.facebook.com/*",
+    "https://*.workers.dev/*",
+    "http://localhost/*",
+    "http://127.0.0.1/*",
+  ],
 }
 ```
 
 Không dùng: `tabs`, `cookies`, `webRequest`, `scripting`, `history`, `<all_urls>`.
 
-- **Content script** (chạy ở `document_idle` trên facebook.com): tầng mỏng nhất có thể. Việc duy nhất: (1) hỏi background "nhóm này có trong allowlist không, hệ thống có đang dừng không"; nếu không đạt → ngủ hoàn toàn, không gắn observer; (2) nếu đạt → gắn observer, gọi adapter extract bài hiển thị, gửi Post thô về background; (3) khi nhận lệnh "chèn bình luận đã duyệt" → gọi adapter điền ô comment của bài đang mở; (4) phát hiện tín hiệu cảnh báo Facebook (checkpoint/CAPTCHA/banner chặn) → báo background kích circuit breaker.
-- **Background service worker**: bộ não. Nhận Post → dedupe → hard filter giai đoạn 1 → batch gọi Worker → hard filter giai đoạn 2 + tổng hợp điểm → ghi LeadStore → đẩy side panel. Giữ counters ngày, trạng thái Emergency Stop và circuit breaker (persist vào storage vì SW MV3 có thể bị kill bất kỳ lúc nào — mọi state phải đọc lại được từ storage).
-- **Side panel**: hàng đợi duyệt. Mỗi lead: điểm + breakdown, phân loại, trích xuất, nháp bình luận (sửa trực tiếp), nút Duyệt & Chèn / Bỏ qua / nhãn Đúng-Sai.
+- **Content script** (chạy ở `document_idle` trên facebook.com): tầng mỏng nhất có thể. Ở P6: (1) hỏi background "nhóm này có trong allowlist không, hệ thống có đang dừng không"; nếu không đạt → ngủ hoàn toàn, không gắn observer; (2) nếu đạt → gắn observer, gọi adapter extract bài hiển thị, gửi Post thô về background; (3) nhận điểm để vẽ badge cô lập bằng Shadow DOM; (4) phát hiện tín hiệu cảnh báo Facebook → báo background kích circuit breaker. Không có fill/click/submit ở P6; thao tác điền chỉ được thêm ở P7 sau khi duyệt.
+- **Background service worker**: bộ não. Nhận Post → dedupe → hard filter giai đoạn 1 → batch gọi Worker → hard filter giai đoạn 2 + tổng hợp điểm → ghi LeadStore atomically → đẩy side panel. Giữ counters ngày, trạng thái Emergency Stop và circuit breaker. Lead `detected` chưa hoàn tất được tự tiếp tục khi SW MV3 khởi động lại; retry luôn kiểm tra lại stop, allowlist và giới hạn ngày.
+- **Side panel**: hàng đợi duyệt. P6 hiển thị điểm + breakdown, phân loại, trích xuất, nháp (sửa trực tiếp), Duyệt lead (chỉ đổi trạng thái local), Bỏ qua và Retry. Không có nút Chèn/Đăng cho đến P7.
 - **Popup**: trạng thái pipeline, counters hôm nay, nút **Emergency Stop** (toggle to, đỏ, 1 chạm).
 - **Trang Dashboard (trong extension)**: bảng pipeline theo trạng thái, phân công thành viên, thống kê precision, audit log, export JSON/CSV.
 - **Options**: allowlist nhóm (URL → chuẩn hóa groupId), hồ sơ team (thành viên + kỹ năng), TEAM_TOKEN, giới hạn ngày, retention.

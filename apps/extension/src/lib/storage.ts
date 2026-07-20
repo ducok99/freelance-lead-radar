@@ -13,6 +13,7 @@ import {
 export interface KeyValueStorage {
   get(key: string): Promise<unknown>;
   set(key: string, value: unknown): Promise<void>;
+  setMany(values: Readonly<Record<string, unknown>>): Promise<void>;
 }
 
 export const chromeLocalStorage: KeyValueStorage = {
@@ -22,6 +23,9 @@ export const chromeLocalStorage: KeyValueStorage = {
   },
   async set(key, value) {
     await chrome.storage.local.set({ [key]: value });
+  },
+  async setMany(values) {
+    await chrome.storage.local.set(values);
   },
 };
 
@@ -87,6 +91,15 @@ export const readCounters = async (
     return createDefaultCounters(now);
   }
   return parsed.data;
+};
+
+export const writeCounters = async (
+  storage: KeyValueStorage,
+  counters: unknown,
+): Promise<CounterState> => {
+  const parsed = CounterStateSchema.parse(counters);
+  await storage.set(STORAGE_KEYS.counters, parsed);
+  return parsed;
 };
 
 export const ensureStorageDefaults = async (

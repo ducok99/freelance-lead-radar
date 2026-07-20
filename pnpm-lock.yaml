@@ -43,6 +43,12 @@ importers:
 
   apps/extension:
     dependencies:
+      '@flr/facebook-adapter':
+        specifier: workspace:*
+        version: link:../../packages/facebook-adapter
+      '@flr/rules-engine':
+        specifier: workspace:*
+        version: link:../../packages/rules-engine
       '@flr/shared':
         specifier: workspace:*
         version: link:../../packages/shared

@@ -255,6 +255,69 @@ textarea {
   box-shadow: 0 12px 30px rgb(35 57 105 / 18%);
 }
 
+.row--top {
+  align-items: flex-start;
+}
+
+.tabs,
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.tabs .button {
+  flex: 1;
+}
+
+.lead-list {
+  display: grid;
+  gap: 12px;
+}
+
+.lead-card {
+  display: grid;
+  gap: 10px;
+  padding: 14px;
+  border: 1px solid #dce3ef;
+  border-radius: 14px;
+  background: white;
+  box-shadow: 0 4px 12px rgb(16 24 40 / 6%);
+}
+
+.lead-card a {
+  color: #175cd3;
+  font-size: 13px;
+}
+
+.score {
+  display: grid;
+  place-items: center;
+  min-width: 42px;
+  min-height: 42px;
+  border-radius: 999px;
+  color: white;
+  background: #175cd3;
+  font-weight: 800;
+}
+
+.breakdown {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 5px;
+  color: #475467;
+  font-size: 12px;
+}
+
+.notice--warning {
+  color: #93370d;
+  background: #fffaeb;
+}
+
+.safety-copy {
+  text-align: center;
+}
+
 @media (max-width: 640px) {
   .grid {
     grid-template-columns: 1fr;

@@ -28,6 +28,9 @@ export const FilterReasonSchema = z.enum([
   "group_not_allowlisted",
   "facebook_warning_active",
   "daily_limit_reached",
+  "ad_or_spam",
+  "classification_rejected",
+  "insufficient_text",
 ]);
 export type FilterReason = z.infer<typeof FilterReasonSchema>;
 
@@ -51,6 +54,8 @@ export const AuditActionSchema = z.enum([
   "filtered",
   "ai_classified",
   "ai_error",
+  "retry_requested",
+  "pipeline_resumed",
   "draft_created",
   "draft_edited",
   "approved",

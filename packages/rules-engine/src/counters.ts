@@ -78,6 +78,17 @@ export const recordAiCall = (
   });
 };
 
+export const recordDraftCall = (
+  state: CounterState,
+  now: string | Date,
+): CounterState => {
+  const current = rollCounters(state, now);
+  return CounterStateSchema.parse({
+    ...current,
+    aiCalls: current.aiCalls + 1,
+  });
+};
+
 export const canInsertComment = (
   state: CounterState,
   limits: Limits,

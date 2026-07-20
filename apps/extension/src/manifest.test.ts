@@ -10,10 +10,15 @@ describe("Manifest MV3 quyền tối thiểu", () => {
   it("khóa đúng permission và host permission đã được DUC duyệt", async () => {
     const resolved = await resolveManifest();
     expect(resolved.manifest_version).toBe(3);
-    expect(resolved.version).toBe("0.5.1");
+    expect(resolved.version).toBe("0.6.0");
     expect(resolved.minimum_chrome_version).toBe("116");
     expect(resolved.permissions).toEqual(["storage", "sidePanel"]);
-    expect(resolved.host_permissions).toEqual(["https://www.facebook.com/*"]);
+    expect(resolved.host_permissions).toEqual([
+      "https://www.facebook.com/*",
+      "https://*.workers.dev/*",
+      "http://localhost/*",
+      "http://127.0.0.1/*",
+    ]);
   });
 
   it("không xin quyền nhạy cảm hoặc all_urls", async () => {

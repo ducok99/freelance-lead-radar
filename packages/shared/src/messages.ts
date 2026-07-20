@@ -1,9 +1,14 @@
 import { z } from "zod";
 import { LeadSchema } from "./lead";
-import { IsoDateTimeSchema, PostKeySchema, UlidSchema } from "./primitives";
+import {
+  IsoDateTimeSchema,
+  PostKeySchema,
+  ScoreSchema,
+  UlidSchema,
+} from "./primitives";
 import { RawPostSchema } from "./post";
 import { SystemStateSchema } from "./state";
-import { WarningReasonSchema } from "./enums";
+import { LeadStatusSchema, WarningReasonSchema } from "./enums";
 
 const GetGateStateMessageSchema = z
   .object({ type: z.literal("GET_GATE_STATE") })
@@ -21,6 +26,18 @@ const PostSeenMessageSchema = z
   .object({
     type: z.literal("POST_SEEN"),
     post: RawPostSchema,
+  })
+  .strict();
+
+const ExtractionFailedMessageSchema = z
+  .object({
+    type: z.literal("EXTRACTION_FAILED"),
+    code: z.enum([
+      "invalid_element",
+      "missing_permalink",
+      "missing_text",
+      "invalid_post",
+    ]),
   })
   .strict();
 
@@ -75,10 +92,55 @@ const LeadsUpdatedMessageSchema = z
   })
   .strict();
 
+const GetLeadsMessageSchema = z
+  .object({ type: z.literal("GET_LEADS") })
+  .strict();
+
+const ReviewLeadMessageSchema = z
+  .object({
+    type: z.literal("REVIEW_LEAD"),
+    leadId: UlidSchema,
+    action: z.enum(["approve", "skip"]),
+  })
+  .strict();
+
+const EditLeadDraftMessageSchema = z
+  .object({
+    type: z.literal("EDIT_LEAD_DRAFT"),
+    leadId: UlidSchema,
+    text: z.string().trim().min(1).max(2_000),
+  })
+  .strict();
+
+const RetryLeadMessageSchema = z
+  .object({
+    type: z.literal("RETRY_LEAD"),
+    leadId: UlidSchema,
+  })
+  .strict();
+
+const PostScoreUpdatedMessageSchema = z
+  .object({
+    type: z.literal("POST_SCORE_UPDATED"),
+    postKey: PostKeySchema,
+    score: ScoreSchema,
+    status: LeadStatusSchema,
+  })
+  .strict();
+
+const ActionErrorMessageSchema = z
+  .object({
+    type: z.literal("ACTION_ERROR"),
+    code: z.enum(["not_found", "invalid_state", "unavailable"]),
+    message: z.string().trim().min(1).max(300),
+  })
+  .strict();
+
 export const ExtensionMessageSchema = z.discriminatedUnion("type", [
   GetGateStateMessageSchema,
   GateStateMessageSchema,
   PostSeenMessageSchema,
+  ExtractionFailedMessageSchema,
   InsertCommentMessageSchema,
   CommentConfirmedMessageSchema,
   WarningDetectedMessageSchema,
@@ -86,12 +148,19 @@ export const ExtensionMessageSchema = z.discriminatedUnion("type", [
   EmergencyStopChangedMessageSchema,
   ResetCircuitBreakerMessageSchema,
   LeadsUpdatedMessageSchema,
+  GetLeadsMessageSchema,
+  ReviewLeadMessageSchema,
+  EditLeadDraftMessageSchema,
+  RetryLeadMessageSchema,
+  PostScoreUpdatedMessageSchema,
+  ActionErrorMessageSchema,
 ]);
 export type ExtensionMessage = z.infer<typeof ExtensionMessageSchema>;
 
 export const ContentToBackgroundMessageSchema = z.discriminatedUnion("type", [
   GetGateStateMessageSchema,
   PostSeenMessageSchema,
+  ExtractionFailedMessageSchema,
   CommentConfirmedMessageSchema,
   WarningDetectedMessageSchema,
 ]);
@@ -103,6 +172,7 @@ export const BackgroundToContentMessageSchema = z.discriminatedUnion("type", [
   GateStateMessageSchema,
   InsertCommentMessageSchema,
   EmergencyStopChangedMessageSchema,
+  PostScoreUpdatedMessageSchema,
 ]);
 export type BackgroundToContentMessage = z.infer<
   typeof BackgroundToContentMessageSchema
@@ -111,11 +181,16 @@ export type BackgroundToContentMessage = z.infer<
 export const UiToBackgroundMessageSchema = z.discriminatedUnion("type", [
   SetEmergencyStopMessageSchema,
   ResetCircuitBreakerMessageSchema,
+  GetLeadsMessageSchema,
+  ReviewLeadMessageSchema,
+  EditLeadDraftMessageSchema,
+  RetryLeadMessageSchema,
 ]);
 export type UiToBackgroundMessage = z.infer<typeof UiToBackgroundMessageSchema>;
 
 export const BackgroundToUiMessageSchema = z.discriminatedUnion("type", [
   LeadsUpdatedMessageSchema,
   EmergencyStopChangedMessageSchema,
+  ActionErrorMessageSchema,
 ]);
 export type BackgroundToUiMessage = z.infer<typeof BackgroundToUiMessageSchema>;

@@ -1,7 +1,7 @@
 # PHASE P5.1 REPORT — Chrome Extension MV3 shell
 
-Ngày: 2026-07-20
-Trạng thái: **Smoke Chrome Windows đạt; chờ CI và DUC chính thức duyệt P5; P6 chưa bắt đầu.**
+Ngày: 2026-07-20  
+Trạng thái: **Hoàn thành; GitHub Actions xanh commit `d6230ed`; DUC chính thức duyệt P5 ngày 2026-07-20.**
 
 ## Sửa lỗi P5.1
 
@@ -47,14 +47,13 @@ lý cùng thông báo lỗi/thành công rõ ràng.
 `pnpm install --frozen-lockfile`, `pnpm check-secrets`, `pnpm check-api-safety`
 và `pnpm lint` cũng đã đạt trong vòng QA cuối.
 
-## Việc còn chờ để nghiệm thu
+## Bằng chứng nghiệm thu
 
-1. Playwright đã nhận đúng 1 E2E test nhưng máy Codex không có Chromium binary;
-   GitHub Actions có bước cài Chromium riêng nên kết quả E2E chỉ được chốt sau
-   khi CI chạy xanh.
+1. Playwright đã nhận đúng 1 E2E test; GitHub Actions đã cài Chromium và chạy
+   xanh trên commit `d6230ed`.
 2. DUC đã load unpacked P5.1 trên Chrome Windows và xác nhận allowlist, side
    panel, Emergency Stop và trạng thái persist qua mở lại đều đạt.
-3. Push candidate, chờ GitHub Actions xanh rồi mới đề nghị DUC duyệt P5.
+3. DUC đã xác nhận chính thức duyệt P5 và cho phép bắt đầu P6.
 
 ## Danh sách file thay đổi
 
@@ -76,9 +75,7 @@ và `pnpm lint` cũng đã đạt trong vòng QA cuối.
 
 ## Rủi ro còn lại / cố tình chưa làm
 
-- Playwright cần tải Chromium trong GitHub Actions; sự cố CDN sẽ làm CI fail rõ ràng,
-  không được bỏ qua E2E.
-- P5 không có pipeline đọc bài; side panel rỗng là hành vi đúng. P6 chưa được phép.
+- P5 không có pipeline đọc bài; side panel rỗng là hành vi đúng của riêng P5.
 - Sau khi tắt Emergency Stop, tab Facebook đã ngủ cần reload ở P5. Cơ chế resume
-  pipeline thuộc P6.
+  pipeline được triển khai ở P6.
 - Không có auto reply, submit, click Đăng, DM, proxy Facebook hoặc server bot.

@@ -81,9 +81,12 @@ describe("primitive schemas", () => {
     ).toBe(false);
   });
 
-  it("API URL cho phép HTTPS và localhost HTTP", () => {
+  it("API URL chỉ cho phép Workers.dev và localhost HTTP", () => {
+    expect(
+      ApiBaseUrlSchema.safeParse("https://flr-api.example.workers.dev").success,
+    ).toBe(true);
     expect(ApiBaseUrlSchema.safeParse("https://api.example.com").success).toBe(
-      true,
+      false,
     );
     expect(ApiBaseUrlSchema.safeParse("http://localhost:8787").success).toBe(
       true,

@@ -1,7 +1,7 @@
 {
   "name": "@flr/extension",
   "private": true,
-  "version": "0.5.1",
+  "version": "0.6.0",
   "type": "module",
   "main": "src/index.ts",
   "scripts": {
@@ -11,6 +11,8 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
+    "@flr/facebook-adapter": "workspace:*",
+    "@flr/rules-engine": "workspace:*",
     "@flr/shared": "workspace:*",
     "react": "19.2.7",
     "react-dom": "19.2.7"

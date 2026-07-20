@@ -12,8 +12,8 @@ export default defineConfig({
     coverage: {
       provider: "v8",
       include: [
-        "apps/extension/src/background/controller.ts",
-        "apps/extension/src/content/gate.ts",
+        "apps/extension/src/background/{api-client,controller,pipeline}.ts",
+        "apps/extension/src/content/{gate,pipeline}.ts",
         "apps/extension/src/lib/**/*.ts",
         "packages/rules-engine/src/**/*.ts",
         "packages/facebook-adapter/src/**/*.ts",

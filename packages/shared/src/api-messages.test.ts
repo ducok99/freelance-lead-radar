@@ -149,6 +149,15 @@ describe("typed extension messages", () => {
     { type: "GET_GATE_STATE" },
     { type: "SET_EMERGENCY_STOP", enabled: true },
     { type: "RESET_CIRCUIT_BREAKER" },
+    { type: "GET_LEADS" },
+    { type: "REVIEW_LEAD", leadId: TEST_MEMBER_ULID, action: "approve" },
+    {
+      type: "EDIT_LEAD_DRAFT",
+      leadId: TEST_MEMBER_ULID,
+      text: "Nháp đã được người dùng chỉnh sửa.",
+    },
+    { type: "RETRY_LEAD", leadId: TEST_MEMBER_ULID },
+    { type: "EXTRACTION_FAILED", code: "missing_permalink" },
     {
       type: "WARNING_DETECTED",
       reason: "captcha_detected",
