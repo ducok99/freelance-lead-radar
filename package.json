@@ -11,10 +11,12 @@
     "lint": "eslint . && prettier --check .",
     "lint:fix": "eslint . --fix && prettier --write .",
     "test": "vitest run",
+    "test:coverage": "vitest run --coverage",
     "check-secrets": "bash scripts/check-secrets.sh"
   },
   "devDependencies": {
     "@eslint/js": "^9.0.0",
+    "@vitest/coverage-v8": "3.2.7",
     "eslint": "^9.0.0",
     "eslint-config-prettier": "^10.0.0",
     "prettier": "^3.3.0",

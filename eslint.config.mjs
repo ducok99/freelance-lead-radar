@@ -2,6 +2,7 @@ import js from "@eslint/js";
 import tseslint from "typescript-eslint";
 import prettier from "eslint-config-prettier";
 import safety from "./eslint.safety.mjs";
+import rulesEngineSafety from "./eslint.rules-engine.mjs";
 
 export default tseslint.config(
   {
@@ -22,5 +23,6 @@ export default tseslint.config(
       "@typescript-eslint/no-explicit-any": "error",
     },
   },
+  ...rulesEngineSafety,
   prettier,
 );

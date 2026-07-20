@@ -1,0 +1,205 @@
+[
+  {
+    "id": "h01",
+    "text": "Cần 1 bạn edit 10 video TikTok, budget 300k/video, cần gấp.",
+    "expected": "hiring_freelancer"
+  },
+  {
+    "id": "h02",
+    "text": "Tìm freelancer thiết kế logo và bộ nhận diện cho quán cà phê.",
+    "expected": "hiring_freelancer"
+  },
+  {
+    "id": "h03",
+    "text": "Cần team làm website giới thiệu công ty bằng WordPress.",
+    "expected": "hiring_freelancer"
+  },
+  {
+    "id": "h04",
+    "text": "Có dự án nội thất căn hộ cần người dựng phối cảnh 3ds Max.",
+    "expected": "hiring_freelancer"
+  },
+  {
+    "id": "h05",
+    "text": "Tuyển CTV viết bài SEO online, trả theo bài 80k/bài.",
+    "expected": "hiring_freelancer"
+  },
+  {
+    "id": "h06",
+    "text": "Cần người dựng phim cưới từ footage có sẵn, báo giá giúp mình.",
+    "expected": "hiring_freelancer"
+  },
+  {
+    "id": "h07",
+    "text": "Nhờ bạn làm landing page cho chiến dịch ra mắt sản phẩm.",
+    "expected": "hiring_freelancer"
+  },
+  {
+    "id": "h08",
+    "text": "Budget 5 triệu cho bộ poster sự kiện, cần hoàn thành tuần này.",
+    "expected": "hiring_freelancer"
+  },
+  {
+    "id": "h09",
+    "text": "Cần thuê kiến trúc sư triển khai mặt bằng nhà phố.",
+    "expected": "hiring_freelancer"
+  },
+  {
+    "id": "h10",
+    "text": "Tìm dev React sửa giao diện website trong hai ngày.",
+    "expected": "hiring_freelancer"
+  },
+  {
+    "id": "h11",
+    "text": "Cần designer làm banner Facebook theo bộ nhận diện có sẵn.",
+    "expected": "hiring_freelancer"
+  },
+  {
+    "id": "h12",
+    "text": "Có job edit Reels cần cộng tác theo từng video.",
+    "expected": "hiring_freelancer"
+  },
+  {
+    "id": "h13",
+    "text": "Cần freelancer vẽ phối cảnh ngoại thất bằng Corona.",
+    "expected": "hiring_freelancer"
+  },
+  {
+    "id": "h14",
+    "text": "Ngân sách 8 triệu, nhờ team code web bán hàng đơn giản.",
+    "expected": "hiring_freelancer"
+  },
+  {
+    "id": "h15",
+    "text": "Tìm team thiết kế catalog và brochure cho doanh nghiệp.",
+    "expected": "hiring_freelancer"
+  },
+  {
+    "id": "h16",
+    "text": "Cần bạn render nội thất phòng khách, file SketchUp đã có.",
+    "expected": "hiring_freelancer"
+  },
+
+  {
+    "id": "s01",
+    "text": "Em nhận job design logo, poster và banner giá sinh viên.",
+    "expected": "seeking_work"
+  },
+  {
+    "id": "s02",
+    "text": "Mình đang nhận việc dựng video TikTok và Reels từ xa.",
+    "expected": "seeking_work"
+  },
+  {
+    "id": "s03",
+    "text": "Tôi đang tìm job frontend React làm ngoài giờ.",
+    "expected": "seeking_work"
+  },
+  {
+    "id": "s04",
+    "text": "Cần tìm việc làm thiết kế nội thất freelance tại Hà Nội.",
+    "expected": "seeking_work"
+  },
+  {
+    "id": "s05",
+    "text": "Em xin việc vị trí editor, có ba năm kinh nghiệm Premiere.",
+    "expected": "seeking_work"
+  },
+  {
+    "id": "s06",
+    "text": "Available for freelance work, chuyên WordPress và Shopify.",
+    "expected": "seeking_work"
+  },
+  {
+    "id": "s07",
+    "text": "Portfolio của mình gồm các dự án logo và nhận diện thương hiệu.",
+    "expected": "seeking_work"
+  },
+  {
+    "id": "s08",
+    "text": "Nhận job freelance kiến trúc, triển khai AutoCAD và phối cảnh.",
+    "expected": "seeking_work"
+  },
+
+  {
+    "id": "f01",
+    "text": "Công ty tuyển nhân viên thiết kế đồ họa làm việc lâu dài.",
+    "expected": "fulltime_recruitment"
+  },
+  {
+    "id": "f02",
+    "text": "Tuyển editor full-time, làm từ thứ hai đến thứ bảy.",
+    "expected": "fulltime_recruitment"
+  },
+  {
+    "id": "f03",
+    "text": "Tìm designer đi làm tại văn phòng Quận 1.",
+    "expected": "fulltime_recruitment"
+  },
+  {
+    "id": "f04",
+    "text": "Tuyển lập trình viên làm giờ hành chính tại công ty.",
+    "expected": "fulltime_recruitment"
+  },
+  {
+    "id": "f05",
+    "text": "Cần kiến trúc sư, vui lòng gửi CV để phỏng vấn.",
+    "expected": "fulltime_recruitment"
+  },
+  {
+    "id": "f06",
+    "text": "Tuyển thiết kế nội thất lương tháng 15 triệu và đóng bảo hiểm.",
+    "expected": "fulltime_recruitment"
+  },
+  {
+    "id": "f07",
+    "text": "Cần nhân viên trực page ca tối, có KPI hàng tháng.",
+    "expected": "fulltime_recruitment"
+  },
+  {
+    "id": "f08",
+    "text": "Tuyển CTV trực page ca 18h-23h tại văn phòng.",
+    "expected": "fulltime_recruitment"
+  },
+
+  {
+    "id": "a01",
+    "text": "Việc nhẹ lương cao, inbox để nhận hướng dẫn ngay.",
+    "expected": "ad_or_spam"
+  },
+  {
+    "id": "a02",
+    "text": "Tuyển người không cần kinh nghiệm, chỉ cần điện thoại.",
+    "expected": "ad_or_spam"
+  },
+  {
+    "id": "a03",
+    "text": "Chỉ cần điện thoại là có thể kiếm tiền mỗi ngày.",
+    "expected": "ad_or_spam"
+  },
+  {
+    "id": "a04",
+    "text": "Cơ hội cộng tác, ib hướng dẫn công việc chi tiết.",
+    "expected": "ad_or_spam"
+  },
+  {
+    "id": "a05",
+    "text": "Nạp vốn 500k để bắt đầu hệ thống kinh doanh tự động.",
+    "expected": "ad_or_spam"
+  },
+  {
+    "id": "a06",
+    "text": "Thu nhập 500k/ngày, làm tại nhà không giới hạn thời gian.",
+    "expected": "ad_or_spam"
+  },
+  {
+    "id": "a07",
+    "text": "Tuyển cộng tác viên bán hàng với hoa hồng cực cao.",
+    "expected": "ad_or_spam"
+  },
+  {
+    "id": "a08",
+    "text": "Đầu tư online lợi nhuận đều, nhắn tin để tham gia nhóm.",
+    "expected": "ad_or_spam"
+  }
+]

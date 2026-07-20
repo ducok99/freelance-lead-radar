@@ -14,15 +14,17 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 15
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
 
-      - uses: pnpm/action-setup@v4
-        # version lấy từ trường packageManager trong package.json
-
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v5
         with:
           node-version: 20
-          cache: pnpm
+          package-manager-cache: false
+
+      # Tránh action runtime Node.js 20 đã deprecated; version pnpm vẫn khóa
+      # đúng với packageManager trong package.json.
+      - name: Cài pnpm
+        run: npm install --global pnpm@10.28.0
 
       - name: Cài dependencies
         run: pnpm install --frozen-lockfile
@@ -38,3 +40,6 @@ jobs:
 
       - name: Unit + contract tests
         run: pnpm test
+
+      - name: Coverage rules-engine (line >= 90%)
+        run: pnpm test:coverage

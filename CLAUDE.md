@@ -38,6 +38,7 @@ pnpm install            # cài toàn repo (Node >= 20, pnpm 10)
 pnpm typecheck          # turbo: tsc --noEmit toàn bộ
 pnpm lint               # eslint + prettier check
 pnpm test               # vitest unit + contract (network bị chặn trong test)
+pnpm test:coverage      # test + chặn nếu rules-engine line coverage < 90%
 pnpm test:e2e           # playwright (cần build extension trước)
 pnpm -F extension build # build MV3 vào apps/extension/dist (load unpacked)
 pnpm -F api dev         # wrangler dev (cần .dev.vars, xem workers/api/README)
@@ -66,21 +67,21 @@ pnpm -F api dev         # wrangler dev (cần .dev.vars, xem workers/api/README)
 
 ## Trạng thái phase (cập nhật cuối mỗi phase)
 
-| Phase                 | Trạng thái                          | Ghi chú                                              |
-| --------------------- | ----------------------------------- | ---------------------------------------------------- |
-| Tài liệu              | ✅ Hoàn thành 2026-07-18            | DUC đã duyệt 2026-07-18                              |
-| P0 Khung monorepo     | ✅ Hoàn thành, DUC duyệt 2026-07-18 | CI GitHub: pending (chưa push repo)                  |
-| P1 shared             | 🟡 Hoàn thành local, chờ DUC duyệt  | Zod schemas + 87 test shared; xem PHASE-P1-REPORT.md |
-| P2 rules-engine       | ⬜                                  | A-01 đã chốt (đồ họa/video/web/kiến trúc)            |
-| P3 fixtures + adapter | ⬜                                  |                                                      |
-| P4 workers/api        | ⬜                                  |                                                      |
-| P5 khung extension    | ⬜                                  |                                                      |
-| P6 pipeline chỉ đọc   | ⬜                                  |                                                      |
-| P7 comment assist     | ⬜                                  | A-02 đã chốt (chèn sẵn, tự bấm Đăng)                 |
-| P8 dashboard page     | ⬜                                  |                                                      |
-| P9 hardening + beta   | ⬜                                  |                                                      |
-| G2-1 D1 + sync        | ⬜                                  | Cần DUC duyệt riêng                                  |
-| G2-2 Auto Reply       | ⬜                                  | Gate: ≥100 nhãn, precision ≥90%, duyệt văn bản       |
+| Phase                 | Trạng thái                          | Ghi chú                                                   |
+| --------------------- | ----------------------------------- | --------------------------------------------------------- |
+| Tài liệu              | ✅ Hoàn thành 2026-07-18            | DUC đã duyệt 2026-07-18                                   |
+| P0 Khung monorepo     | ✅ Hoàn thành, DUC duyệt 2026-07-18 | CI GitHub xanh 2026-07-20                                 |
+| P1 shared             | ✅ DUC duyệt 2026-07-20             | Zod schemas + 87 test shared; xem PHASE-P1-REPORT.md      |
+| P2 rules-engine       | 🟡 Hoàn thành local, chờ DUC duyệt  | 161 test package; coverage 98,17%; xem PHASE-P2-REPORT.md |
+| P3 fixtures + adapter | ⬜                                  |                                                           |
+| P4 workers/api        | ⬜                                  |                                                           |
+| P5 khung extension    | ⬜                                  |                                                           |
+| P6 pipeline chỉ đọc   | ⬜                                  |                                                           |
+| P7 comment assist     | ⬜                                  | A-02 đã chốt (chèn sẵn, tự bấm Đăng)                      |
+| P8 dashboard page     | ⬜                                  |                                                           |
+| P9 hardening + beta   | ⬜                                  |                                                           |
+| G2-1 D1 + sync        | ⬜                                  | Cần DUC duyệt riêng                                       |
+| G2-2 Auto Reply       | ⬜                                  | Gate: ≥100 nhãn, precision ≥90%, duyệt văn bản            |
 
 ## Quyết định đã chốt (cập nhật khi DUC trả lời câu hỏi mở)
 
@@ -91,3 +92,4 @@ pnpm -F api dev         # wrangler dev (cần .dev.vars, xem workers/api/README)
 | 2026-07-18 | A-02 Chế độ đăng MVP             | Chèn sẵn vào ô bình luận, người dùng tự bấm Đăng                                                                                                                                                                                                                                                  |
 | —          | Các giả định còn lại             | Xem PRD §12 (A-03…A-15 chưa chốt, làm theo giá trị mặc định)                                                                                                                                                                                                                                      |
 | 2026-07-18 | Review độc lập P0 → bản sửa P0.1 | Chuyển onlyBuiltDependencies sang pnpm-workspace.yaml (pnpm 10); tách AC CI thành "workflow đã tạo" (done) và "CI xanh trên GitHub" (pending); ci.yml thêm permissions contents:read + timeout 15p; README phản ánh đúng trạng thái P0; zip phải đóng gói trong thư mục gốc freelance-lead-radar/ |
+| 2026-07-20 | P0 CI + duyệt P1                 | GitHub Actions run `29716094699` xanh trên commit `38e6669`; DUC cho phép triển khai P2.                                                                                                                                                                                                          |

@@ -1,7 +1,7 @@
 # BÁO CÁO PHASE P1 — PACKAGES/SHARED
 
 Ngày: 2026-07-18  
-Trạng thái: Hoàn thành local, chờ DUC nghiệm thu
+Trạng thái: DUC duyệt ngày 2026-07-20
 
 ## 1. Kết quả
 
@@ -76,7 +76,7 @@ Ngoài ra đã cập nhật barrel exports, dependency/lockfile và tài liệu 
 
 ## 8. Rủi ro còn lại
 
-- GitHub Actions chưa được chạy vì repository chưa được push; local checks đều xanh.
+- GitHub Actions đã chạy xanh ngày 2026-07-20 (run `29716094699`, commit `38e6669`). Workflow P2 đã nâng các action sang runtime Node.js 24; cần xác nhận lại sau lần push P2.
 - API/message contracts có thể cần mở rộng có kiểm soát khi P2–P5 triển khai; mọi thay đổi phải cập nhật `DATA-MODEL.md` và test tương ứng.
 - Chưa có kiểm thử live Facebook — đúng phạm vi, chỉ xuất hiện ở các phase adapter/beta sau.
 - `pnpm audit` phản ánh cơ sở dữ liệu advisory tại thời điểm kiểm tra; tiếp tục chạy CI ở mỗi phase.
