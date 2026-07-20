@@ -1,0 +1,6 @@
+{
+  "variant": "Trang checkpoint",
+  "capturedAt": "2026-07-20",
+  "currentUrl": "https://www.facebook.com/checkpoint/123456/",
+  "expectedWarnings": ["checkpoint_detected"]
+}

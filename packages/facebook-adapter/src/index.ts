@@ -1,5 +1,5 @@
-/**
- * Phase 0: khung package. Logic thật sẽ được thêm theo đúng phase
- * trong docs/IMPLEMENTATION-PLAN.md — không thêm trước khi phase được duyệt.
- */
-export const PACKAGE_NAME = "@flr/facebook-adapter";
+export * from "./comment-box";
+export * from "./extract";
+export * from "./selectors";
+export * from "./urls";
+export * from "./warnings";

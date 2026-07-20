@@ -1,7 +1,7 @@
 # BÁO CÁO PHASE P2 — PACKAGES/RULES-ENGINE
 
 Ngày: 2026-07-20  
-Trạng thái: Hoàn thành local, chờ DUC nghiệm thu
+Trạng thái: DUC chính thức duyệt ngày 2026-07-20; CI xanh commit `ddf7352`
 
 ## 1. Kết quả
 
@@ -83,4 +83,4 @@ Ngoài ra đã cập nhật exports, workspace dependency, lockfile, Vitest cove
 
 ## 9. Điều kiện nghiệm thu
 
-DUC kiểm tra báo cáo và kết quả CI của commit P2. Chỉ sau khi DUC trả lời rõ **“Tôi chính thức duyệt P2”** mới được bắt đầu P3.
+DUC đã trả lời rõ **“Tôi chính thức duyệt P2”** ngày 2026-07-20 sau khi local QA và GitHub Actions của commit `ddf7352` đều xanh. P3 được phép bắt đầu; P4 vẫn chưa được phép.

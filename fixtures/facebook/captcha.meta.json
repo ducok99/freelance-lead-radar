@@ -1,0 +1,6 @@
+{
+  "variant": "Hộp CAPTCHA giả lập",
+  "capturedAt": "2026-07-20",
+  "currentUrl": "https://www.facebook.com/groups/100000000000001/",
+  "expectedWarnings": ["captcha_detected"]
+}

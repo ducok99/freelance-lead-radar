@@ -11,14 +11,26 @@ export default defineConfig({
     setupFiles: ["tests/setup.ts"],
     coverage: {
       provider: "v8",
-      include: ["packages/rules-engine/src/**/*.ts"],
+      include: [
+        "packages/rules-engine/src/**/*.ts",
+        "packages/facebook-adapter/src/**/*.ts",
+      ],
       exclude: [
-        "packages/rules-engine/src/**/*.test.ts",
+        "packages/{rules-engine,facebook-adapter}/src/**/*.test.ts",
+        "packages/facebook-adapter/src/**/*.d.ts",
+        "packages/facebook-adapter/src/selectors.ts",
+        "packages/facebook-adapter/src/index.ts",
         "packages/rules-engine/src/fixtures/**",
         "packages/rules-engine/src/index.ts",
       ],
       thresholds: {
-        lines: 90,
+        lines: 80,
+        "packages/rules-engine/src/**": {
+          lines: 90,
+        },
+        "packages/facebook-adapter/src/**": {
+          lines: 80,
+        },
       },
     },
   },

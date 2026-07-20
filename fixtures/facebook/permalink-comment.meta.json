@@ -1,0 +1,16 @@
+{
+  "variant": "Trang permalink có ô bình luận",
+  "capturedAt": "2026-07-20",
+  "currentUrl": "https://www.facebook.com/groups/100000000000001/posts/200000000000007/",
+  "hasCommentBox": true,
+  "expected": {
+    "postKey": "100000000000001:200000000000007",
+    "groupId": "100000000000001",
+    "permalink": "https://www.facebook.com/groups/100000000000001/posts/200000000000007/",
+    "authorName": "Hoang E.",
+    "anonymousPoster": false,
+    "text": "Cần dev sửa website WordPress trong tuần này.",
+    "truncated": false,
+    "postedAtText": "20 tháng 7 lúc 12:00"
+  }
+}

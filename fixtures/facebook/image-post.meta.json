@@ -1,0 +1,14 @@
+{
+  "variant": "Bài có ảnh placeholder",
+  "capturedAt": "2026-07-20",
+  "expected": {
+    "postKey": "100000000000001:200000000000004",
+    "groupId": "100000000000001",
+    "permalink": "https://www.facebook.com/groups/100000000000001/posts/200000000000004/",
+    "authorName": "Le B.",
+    "anonymousPoster": false,
+    "text": "Cần dựng phối cảnh nội thất căn hộ, dùng 3ds Max.",
+    "truncated": false,
+    "postedAtText": "5 giờ"
+  }
+}

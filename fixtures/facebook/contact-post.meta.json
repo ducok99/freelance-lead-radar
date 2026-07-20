@@ -1,0 +1,14 @@
+{
+  "variant": "Bài có liên hệ công khai đã làm giả",
+  "capturedAt": "2026-07-20",
+  "expected": {
+    "postKey": "100000000000001:200000000000006",
+    "groupId": "100000000000001",
+    "permalink": "https://www.facebook.com/groups/100000000000001/posts/200000000000006/",
+    "authorName": "Do D.",
+    "anonymousPoster": false,
+    "text": "Cần thiết kế banner. Liên hệ Zalo 09xx xxx xxx hoặc email user@example.test.",
+    "truncated": false,
+    "postedAtText": "Hôm qua"
+  }
+}

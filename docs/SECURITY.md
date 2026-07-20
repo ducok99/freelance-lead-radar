@@ -1,6 +1,6 @@
 # SECURITY — FREELANCE LEAD RADAR
 
-v0.3 — 2026-07-20 — cập nhật theo Phase 2.
+v0.4 — 2026-07-20 — cập nhật theo Phase 3.
 
 Tài liệu này biến "QUY TẮC AN TOÀN TUYỆT ĐỐI" trong spec thành **bất biến có vị trí thực thi cụ thể trong code và test bảo vệ**. Mọi phase triển khai phải đối chiếu bảng §3 trước khi merge.
 
@@ -43,7 +43,7 @@ Tài liệu này biến "QUY TẮC AN TOÀN TUYỆT ĐỐI" trong spec thành **
 | 14  | Không dùng dữ liệu FB ngoài mục đích xử lý lead hiện tại | Backend MVP stateless với nội dung bài (không ghi D1 khi chưa tới giai đoạn 2); retention purge; không analytics bên thứ ba | Review + test purge                                                                                   |
 | 15  | MVP không tự đăng dù ≥ 95 điểm                           | `facebook-adapter` KHÔNG export hàm submit; không listener tự click nút Đăng                                                | Test tĩnh: import surface của adapter không chứa `submit*`; e2e: lead 97 điểm vẫn dừng ở needs_review |
 
-Phase 1 đã triển khai phần schema của các bất biến #1 và #10. Phase 2 bổ sung gate thuần cho allowlist, Emergency Stop, dedupe, daily limit và circuit breaker; package rules-engine bị ESLint cấm DOM, network và `Math.random`. Đây mới là lớp luật thuần: enforcement ba lớp trong extension/adapter vẫn phải triển khai và kiểm thử ở P5–P9.
+Phase 1 đã triển khai phần schema của các bất biến #1 và #10. Phase 2 bổ sung gate thuần cho allowlist, Emergency Stop, dedupe, daily limit và circuit breaker. Phase 3 triển khai adapter đọc DOM, parser URL, phát hiện checkpoint/CAPTCHA/banner chặn và locator ô bình luận; export surface được khóa bằng allowlist chỉ-đọc, không có fill/submit/click. Enforcement ba lớp và thao tác điền chỉ xuất hiện đúng P5–P9.
 
 ## 4. Quyền extension — tối thiểu và giải trình
 

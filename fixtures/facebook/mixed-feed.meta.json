@@ -1,0 +1,12 @@
+{
+  "variant": "Feed 10 article xen bài tài trợ và placeholder",
+  "capturedAt": "2026-07-20",
+  "expectedArticleCount": 10,
+  "expectedPostKeys": [
+    "100000000000001:200000000000011",
+    "100000000000001:200000000000012",
+    "100000000000001:200000000000013",
+    "100000000000001:200000000000014"
+  ],
+  "expectedFailureCount": 6
+}

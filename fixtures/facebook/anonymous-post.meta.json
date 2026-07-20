@@ -1,0 +1,13 @@
+{
+  "variant": "Người đăng ẩn danh",
+  "capturedAt": "2026-07-20",
+  "expected": {
+    "postKey": "100000000000001:200000000000003",
+    "groupId": "100000000000001",
+    "permalink": "https://www.facebook.com/groups/100000000000001/posts/200000000000003/",
+    "anonymousPoster": true,
+    "text": "Tìm team làm landing page cho khóa học.",
+    "truncated": false,
+    "postedAtText": "4 giờ"
+  }
+}

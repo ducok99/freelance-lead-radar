@@ -1,0 +1,14 @@
+{
+  "variant": "Bài share lồng một article khác",
+  "capturedAt": "2026-07-20",
+  "expected": {
+    "postKey": "100000000000001:200000000000005",
+    "groupId": "100000000000001",
+    "permalink": "https://www.facebook.com/groups/100000000000001/posts/200000000000005/",
+    "authorName": "Pham C.",
+    "anonymousPoster": false,
+    "text": "Mình cần freelancer chỉnh lại video trong bài chia sẻ này.",
+    "truncated": false,
+    "postedAtText": "6 giờ"
+  }
+}

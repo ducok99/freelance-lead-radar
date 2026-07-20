@@ -41,5 +41,5 @@ jobs:
       - name: Unit + contract tests
         run: pnpm test
 
-      - name: Coverage rules-engine (line >= 90%)
+      - name: Coverage rules-engine >= 90% + adapter >= 80%
         run: pnpm test:coverage

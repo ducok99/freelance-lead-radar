@@ -1,0 +1,14 @@
+{
+  "variant": "Bài bị rút gọn có nút Xem thêm",
+  "capturedAt": "2026-07-20",
+  "expected": {
+    "postKey": "100000000000001:200000000000002",
+    "groupId": "100000000000001",
+    "permalink": "https://www.facebook.com/groups/100000000000001/posts/200000000000002/",
+    "authorName": "Tran A.",
+    "anonymousPoster": false,
+    "text": "Cần editor dựng chuỗi video giới thiệu sản phẩm...",
+    "truncated": true,
+    "postedAtText": "3 giờ"
+  }
+}
