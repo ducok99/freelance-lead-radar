@@ -74,6 +74,12 @@ export interface ReadOnlyPipelinePorts {
   broadcast: (message: ExtensionMessage) => Promise<void>;
   createId?: () => string;
   schedule?: (callback: () => void) => void;
+  /**
+   * P6.1: được gọi với các lead VỪA chuyển sang needs_review sau phân tích
+   * (không gọi lại khi sửa nháp/duyệt/bỏ qua). Lỗi trong notify không được
+   * phép ảnh hưởng pipeline — pipeline tự nuốt lỗi này (fail-safe).
+   */
+  notify?: (leads: readonly Lead[]) => Promise<void>;
 }
 
 export interface LeadActionResult {
@@ -540,6 +546,7 @@ export class ReadOnlyPipeline {
       results.map((result) => [result.postKey, result]),
     );
     const changed: Lead[] = [...alreadyChanged];
+    const freshReview: Lead[] = [];
 
     for (const item of prepared) {
       const result = byPostKey.get(item.lead.post.postKey);
@@ -577,10 +584,23 @@ export class ReadOnlyPipeline {
       );
       counters = analyzed.counters;
       changed.push(analyzed.lead);
+      if (analyzed.lead.status === "needs_review") {
+        freshReview.push(analyzed.lead);
+      }
     }
 
     await this.#store.commit({ counters });
     await this.#publish(changed);
+
+    // P6.1: thông báo lead mới SAU khi đã lưu và phát LEADS_UPDATED. Lỗi
+    // thông báo (vd API notifications hỏng) không được làm hỏng pipeline.
+    if (freshReview.length > 0 && this.ports.notify !== undefined) {
+      try {
+        await this.ports.notify(freshReview);
+      } catch {
+        // Cố tình nuốt lỗi — xem chú thích tại ReadOnlyPipelinePorts.notify.
+      }
+    }
   }
 
   async #applyClassification(

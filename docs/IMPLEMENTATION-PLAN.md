@@ -1,6 +1,6 @@
 # IMPLEMENTATION-PLAN — FREELANCE LEAD RADAR
 
-v0.9 — 2026-07-20 — P0–P5 đã được DUC duyệt; P6 candidate v0.6.0 đã qua local QA, chờ E2E CI + smoke Chrome và DUC duyệt; P7 chưa được phép.
+v0.10 — 2026-07-20 — P0–P5 đã được DUC duyệt; P6 candidate v0.6.1 (gồm P6.1 thông báo lead mới) đã qua local QA, chờ E2E CI + smoke Chrome và DUC duyệt; P7 chưa được phép.
 
 ## 1. Nghi thức bắt buộc sau MỖI phase (theo yêu cầu của DUC)
 
@@ -129,6 +129,31 @@ Trạng thái candidate 2026-07-20: toàn bộ code và test P6 đã hoàn tất
 407/407, coverage/build/safety xanh. Hai kịch bản E2E đã được Playwright nhận;
 máy Codex không có Chromium binary nên vẫn phải chờ GitHub Actions chạy thật
 trước khi đánh dấu các acceptance criteria và đề nghị DUC duyệt.
+
+#### P6.1 — Thông báo desktop lead mới (DUC yêu cầu & duyệt 2026-07-20)
+
+**Phạm vi**: quyền `notifications` trong manifest (SECURITY §4 đã cập nhật cùng thay đổi);
+`Settings.notifications.enabled` mặc định bật, tắt được trong Options (hiệu lực ngay — đọc
+settings ở mỗi lần thông báo); background hiện thông báo desktop khi lead VỪA chuyển sang
+`needs_review` sau phân tích (batch > 3 lead → gộp một thông báo tổng); bấm thông báo = hành
+động người dùng → mở đúng bài viết (hoặc hàng đợi duyệt với thông báo tổng); badge trên icon
+extension đếm số lead đang chờ duyệt. **Không đổi nguyên tắc đọc thụ động (ADR-01)**: không có
+tab nhóm allowlist đang mở thì không có gì được phân tích nên không có thông báo; không quét nền.
+**Ngoài phạm vi**: mọi hành vi ghi lên Facebook (vẫn là P7); âm thanh/tùy chỉnh nâng cao.
+
+**Acceptance criteria**:
+
+- [x] Lead mới `needs_review` → notify đúng một lần, đúng lead; không notify khi dưới ngưỡng
+      hoặc bị lọc (pipeline.test.ts P6.1).
+- [x] Nhiều hơn 3 lead trong một batch → một thông báo tổng (notifications.test.ts).
+- [x] Tắt trong Options → không thông báo, hiệu lực ngay (createLeadNotifier test).
+- [x] Notify lỗi không làm hỏng pipeline — lead vẫn được lưu, draft vẫn tạo (pipeline.test.ts).
+- [x] Manifest thêm đúng một quyền `notifications`, bump 0.6.1; snapshot test + e2e assertion +
+      SECURITY §4 cập nhật đồng bộ.
+- [x] Sửa nháp / duyệt / bỏ qua KHÔNG phát lại thông báo (notify chỉ gọi trong #analyze).
+- [ ] E2E CI GitHub Actions xanh trên commit chứa P6.1 (chung điều kiện nghiệm thu với P6).
+- [ ] Smoke Chrome của DUC: lướt nhóm test thấy thông báo desktop + badge; bấm thông báo mở đúng
+      bài; tắt trong Options thì hết thông báo.
 
 ### P7 — Comment assist (A-02 đã chốt: chèn sẵn, người dùng tự bấm Đăng)
 

@@ -6,9 +6,11 @@ export default defineManifest({
   short_name: "Lead Radar",
   description:
     "Phát hiện lead freelancer trong nhóm Facebook allowlist, luôn có người duyệt.",
-  version: "0.6.0",
+  version: "0.6.1",
   minimum_chrome_version: "116",
-  permissions: ["storage", "sidePanel"],
+  // "notifications": P6.1 — DUC yêu cầu & duyệt 2026-07-20 (SECURITY.md §4).
+  // Chỉ hiện thông báo cục bộ khi pipeline đọc-thụ-động phát hiện lead mới.
+  permissions: ["storage", "sidePanel", "notifications"],
   host_permissions: [
     "https://www.facebook.com/*",
     "https://*.workers.dev/*",

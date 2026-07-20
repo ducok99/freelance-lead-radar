@@ -72,7 +72,11 @@ test("nhóm ngoài allowlist không ghi lead, dedupe hay audit", async () => {
       };
     });
 
-    expect(result.manifest.permissions).toEqual(["storage", "sidePanel"]);
+    expect(result.manifest.permissions).toEqual([
+      "storage",
+      "sidePanel",
+      "notifications",
+    ]);
     expect(result.manifest.host_permissions).toEqual([
       "https://www.facebook.com/*",
       "https://*.workers.dev/*",

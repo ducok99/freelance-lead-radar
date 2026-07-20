@@ -12,6 +12,14 @@ export const DEFAULT_LIMITS = Object.freeze({
   maxAiCallsPerDay: 200,
 } as const);
 
+// P6.1 (DUC yêu cầu & duyệt 2026-07-20): thông báo desktop khi có lead mới
+// chờ duyệt — mặc định BẬT vì đây là mục đích chính của tính năng; người dùng
+// tắt được trong Options. Chỉ là thông báo cục bộ của Chrome, không gửi dữ
+// liệu đi đâu, không tạo thao tác nào lên Facebook.
+export const DEFAULT_NOTIFICATIONS = Object.freeze({
+  enabled: true,
+} as const);
+
 export const DEFAULT_RETENTION_DAYS = 90 as const;
 export const DEFAULT_TIME_ZONE = "Asia/Bangkok" as const;
 export const MAX_AUDIT_EVENTS = 5_000 as const;

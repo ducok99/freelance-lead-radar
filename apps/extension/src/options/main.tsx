@@ -389,6 +389,30 @@ const Options = () => {
         </p>
       </section>
 
+      <section className="card">
+        <h2>Thông báo</h2>
+        <div className="checks">
+          <label>
+            <input
+              checked={settings.notifications.enabled}
+              onChange={(event) =>
+                setSettings({
+                  ...settings,
+                  notifications: { enabled: event.target.checked },
+                })
+              }
+              type="checkbox"
+            />
+            Hiện thông báo desktop ngay khi có lead mới chờ duyệt
+          </label>
+        </div>
+        <p className="muted">
+          Thông báo chỉ xuất hiện khi bạn đang mở tab nhóm thuộc allowlist —
+          extension đọc thụ động, không tự quét nền. Bấm vào thông báo để mở
+          đúng bài viết.
+        </p>
+      </section>
+
       <button
         className="button"
         disabled={saving}

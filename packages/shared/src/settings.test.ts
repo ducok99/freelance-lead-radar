@@ -12,6 +12,7 @@ describe("SettingsSchema", () => {
   it("tạo cấu hình mặc định an toàn", () => {
     expect(DEFAULT_SETTINGS).toMatchObject({
       autoReply: { enabled: false },
+      notifications: { enabled: true },
       thresholds: SCORE_THRESHOLDS,
       limits: DEFAULT_LIMITS,
       retentionDays: 90,
@@ -22,6 +23,30 @@ describe("SettingsSchema", () => {
 
   it("autoReply mặc định luôn false", () => {
     expect(SettingsSchema.parse({}).autoReply.enabled).toBe(false);
+  });
+
+  it("thông báo lead mới mặc định bật và tắt được (P6.1)", () => {
+    expect(SettingsSchema.parse({}).notifications.enabled).toBe(true);
+    expect(
+      SettingsSchema.parse({ notifications: { enabled: false } }).notifications
+        .enabled,
+    ).toBe(false);
+  });
+
+  it("cài đặt cũ chưa có khóa notifications vẫn parse được (migration mềm)", () => {
+    const legacy: Record<string, unknown> = { ...SettingsSchema.parse({}) };
+    delete legacy.notifications;
+    expect(SettingsSchema.parse(legacy).notifications).toEqual({
+      enabled: true,
+    });
+  });
+
+  it("notifications từ chối trường không khai báo", () => {
+    expect(
+      SettingsSchema.safeParse({
+        notifications: { enabled: true, sound: true },
+      }).success,
+    ).toBe(false);
   });
 
   it("từ chối thay đổi ngưỡng cố định", () => {

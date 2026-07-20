@@ -47,15 +47,16 @@ Phase 1 đã triển khai phần schema của các bất biến #1 và #10. Phas
 
 ## 4. Quyền extension — tối thiểu và giải trình
 
-| Quyền                                          | Vì sao cần                                              | Vì sao đủ                                                |
-| ---------------------------------------------- | ------------------------------------------------------- | -------------------------------------------------------- |
-| `storage`                                      | Lưu settings, lead, audit local                         | Không cần server trong MVP                               |
-| `sidePanel`                                    | UI hàng đợi duyệt                                       | —                                                        |
-| `host_permissions: https://www.facebook.com/*` | Content script đọc DOM nhóm allowlist khi người dùng mở | Gate allowlist chạy ngay đầu; ngoài allowlist script ngủ |
-| `host_permissions: https://*.workers.dev/*`    | Background gọi Workers API đã cấu hình                  | Schema Settings chỉ nhận Workers.dev                     |
-| `host_permissions: localhost / 127.0.0.1`      | Mock API cho dev/E2E local                              | HTTP chỉ được schema cho phép với localhost              |
+| Quyền                                          | Vì sao cần                                                                                                      | Vì sao đủ                                                                                                                                                     |
+| ---------------------------------------------- | --------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `storage`                                      | Lưu settings, lead, audit local                                                                                 | Không cần server trong MVP                                                                                                                                    |
+| `sidePanel`                                    | UI hàng đợi duyệt                                                                                               | —                                                                                                                                                             |
+| `notifications`                                | P6.1 (DUC yêu cầu & duyệt 2026-07-20): thông báo desktop khi pipeline đọc-thụ-động phát hiện lead mới chờ duyệt | Thông báo cục bộ của Chrome, không gửi dữ liệu ra ngoài; chỉ phát khi tab nhóm allowlist đang mở; tắt được trong Options; notify lỗi không ảnh hưởng pipeline |
+| `host_permissions: https://www.facebook.com/*` | Content script đọc DOM nhóm allowlist khi người dùng mở                                                         | Gate allowlist chạy ngay đầu; ngoài allowlist script ngủ                                                                                                      |
+| `host_permissions: https://*.workers.dev/*`    | Background gọi Workers API đã cấu hình                                                                          | Schema Settings chỉ nhận Workers.dev                                                                                                                          |
+| `host_permissions: localhost / 127.0.0.1`      | Mock API cho dev/E2E local                                                                                      | HTTP chỉ được schema cho phép với localhost                                                                                                                   |
 
-Cố tình KHÔNG xin: `tabs`, `cookies`, `webRequest`, `scripting`, `history`, `notifications` (cân nhắc sau), `<all_urls>`. Không cấp quyền HTTPS tổng quát; P6 chỉ gọi subdomain Workers.dev hoặc localhost. Thêm bất kỳ quyền nào = sửa tài liệu này + DUC duyệt.
+Cố tình KHÔNG xin: `tabs`, `cookies`, `webRequest`, `scripting`, `history`, `<all_urls>`. Không cấp quyền HTTPS tổng quát; P6 chỉ gọi subdomain Workers.dev hoặc localhost. Thêm bất kỳ quyền nào = sửa tài liệu này + DUC duyệt (quyền `notifications` đã theo đúng quy trình này ở P6.1, 2026-07-20).
 
 ## 5. Bảo vệ Workers API
 

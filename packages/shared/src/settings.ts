@@ -1,6 +1,7 @@
 import { z } from "zod";
 import {
   DEFAULT_LIMITS,
+  DEFAULT_NOTIFICATIONS,
   DEFAULT_RETENTION_DAYS,
   DEFAULT_TEAM_SKILLS,
   SCHEMA_VERSION,
@@ -88,6 +89,18 @@ export const AutoReplySettingsSchema = z
   .strict();
 export type AutoReplySettings = z.infer<typeof AutoReplySettingsSchema>;
 
+/**
+ * P6.1 — thông báo desktop khi có lead mới vào hàng đợi duyệt (DUC yêu cầu &
+ * duyệt 2026-07-20). Khác với autoReply, mặc định BẬT: thông báo chỉ là hiển
+ * thị cục bộ trên máy người dùng, không tương tác gì với Facebook.
+ */
+export const NotificationSettingsSchema = z
+  .object({
+    enabled: z.boolean().default(DEFAULT_NOTIFICATIONS.enabled),
+  })
+  .strict();
+export type NotificationSettings = z.infer<typeof NotificationSettingsSchema>;
+
 export const SettingsSchema = z
   .object({
     allowlist: z.array(GroupRefSchema).default([]),
@@ -101,6 +114,7 @@ export const SettingsSchema = z
     thresholds: ThresholdsSchema.default(SCORE_THRESHOLDS),
     limits: LimitsSchema.default(DEFAULT_LIMITS),
     autoReply: AutoReplySettingsSchema.default({ enabled: false }),
+    notifications: NotificationSettingsSchema.default(DEFAULT_NOTIFICATIONS),
     retentionDays: z
       .number()
       .int()

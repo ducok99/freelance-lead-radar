@@ -10,9 +10,14 @@ describe("Manifest MV3 quyền tối thiểu", () => {
   it("khóa đúng permission và host permission đã được DUC duyệt", async () => {
     const resolved = await resolveManifest();
     expect(resolved.manifest_version).toBe(3);
-    expect(resolved.version).toBe("0.6.0");
+    expect(resolved.version).toBe("0.6.1");
     expect(resolved.minimum_chrome_version).toBe("116");
-    expect(resolved.permissions).toEqual(["storage", "sidePanel"]);
+    // "notifications" được DUC duyệt 2026-07-20 cho P6.1 (SECURITY.md §4).
+    expect(resolved.permissions).toEqual([
+      "storage",
+      "sidePanel",
+      "notifications",
+    ]);
     expect(resolved.host_permissions).toEqual([
       "https://www.facebook.com/*",
       "https://*.workers.dev/*",

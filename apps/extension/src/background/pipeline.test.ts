@@ -4,6 +4,7 @@ import {
   type ClassifyRequest,
   type ClassifyResponse,
   type DraftResponse,
+  type Lead,
   type RawPost,
   type Settings,
 } from "@flr/shared";
@@ -79,7 +80,10 @@ const draftResponse: DraftResponse = {
   schemaVersion: 1,
 };
 
-const setup = (api?: PipelineApiClient) => {
+const setup = (
+  api?: PipelineApiClient,
+  notify?: (leads: readonly Lead[]) => Promise<void>,
+) => {
   const storage = new MemoryStorage();
   storage.values.set(STORAGE_KEYS.settings, settings);
   let scheduled: (() => void) | undefined;
@@ -102,6 +106,7 @@ const setup = (api?: PipelineApiClient) => {
     schedule(callback) {
       scheduled = callback;
     },
+    ...(notify === undefined ? {} : { notify }),
   });
   const flush = async () => {
     const callback = scheduled;
@@ -302,5 +307,68 @@ describe("ReadOnlyPipeline P6", () => {
       extractionFailures: 1,
     });
     await expect(pipeline.listLeads()).resolves.toEqual([]);
+  });
+
+  it("P6.1: notify được gọi đúng một lần với lead vừa vào hàng đợi duyệt", async () => {
+    const notify = vi.fn(() => Promise.resolve());
+    const { pipeline, flush } = setup(undefined, notify);
+    const hiring = rawPost(
+      "120",
+      "Cần thuê designer thiết kế logo, có budget.",
+    );
+    const seeking = rawPost(
+      "121",
+      "Mình đang nhận job thiết kế, đây là portfolio của mình.",
+    );
+
+    const first = pipeline.enqueue(hiring);
+    const second = pipeline.enqueue(seeking);
+    await flush();
+    await Promise.all([first, second]);
+
+    expect(notify).toHaveBeenCalledTimes(1);
+    expect(notify).toHaveBeenCalledWith([
+      expect.objectContaining({
+        status: "needs_review",
+        post: expect.objectContaining({ postKey: hiring.postKey }),
+      }),
+    ]);
+  });
+
+  it("P6.1: không notify khi bài dưới ngưỡng điểm", async () => {
+    const api: PipelineApiClient = {
+      classify: vi.fn((request) =>
+        Promise.resolve(classification(request, 40)),
+      ),
+      draft: vi.fn(() => Promise.resolve(draftResponse)),
+    };
+    const notify = vi.fn(() => Promise.resolve());
+    const { pipeline, flush } = setup(api, notify);
+    const pending = pipeline.enqueue(
+      rawPost("122", "Cần thuê designer thiết kế logo, có budget."),
+    );
+    await flush();
+    await pending;
+
+    const [lead] = await pipeline.listLeads();
+    expect(lead?.status).toBe("below_threshold");
+    expect(notify).not.toHaveBeenCalled();
+  });
+
+  it("P6.1: notify lỗi không làm hỏng pipeline, lead vẫn được lưu đủ", async () => {
+    const notify = vi.fn(() =>
+      Promise.reject(new Error("notification API hỏng")),
+    );
+    const { pipeline, flush } = setup(undefined, notify);
+    const pending = pipeline.enqueue(
+      rawPost("123", "Cần thuê designer thiết kế logo, có budget."),
+    );
+    await flush();
+    await pending;
+
+    expect(notify).toHaveBeenCalledTimes(1);
+    const [lead] = await pipeline.listLeads();
+    expect(lead).toMatchObject({ status: "needs_review" });
+    expect(lead?.draft).toBeDefined();
   });
 });

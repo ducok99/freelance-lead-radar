@@ -13,18 +13,19 @@ v0.3 — 2026-07-20 — cập nhật theo Phase 6 candidate. Zod schema trong `p
 
 ### 2.1 Settings (`flr:settings`)
 
-| Trường                | Kiểu           | Mô tả                                                                                                   |
-| --------------------- | -------------- | ------------------------------------------------------------------------------------------------------- |
-| allowlist             | `GroupRef[]`   | `{groupId, name, url, active}` — nhóm được phép theo dõi                                                |
-| teamSkills            | `SkillField[]` | Lĩnh vực team nhận (đã chốt: `graphic_design`, `video_editing`, `web_dev`, `architecture`)              |
-| teamProfile           | `string`       | 2–3 câu năng lực dùng để cá nhân hóa bình luận                                                          |
-| members               | `TeamMember[]` | Xem 2.2                                                                                                 |
-| thresholds            | object         | `{ignoreBelow: 75, reviewUpTo: 94, autoEligibleFrom: 95}` — hằng số, hiển thị chỉ-đọc trong MVP         |
-| limits                | object         | `{maxCommentsPerDay: 10, minCommentIntervalMin: 5, maxAiCallsPerDay: 200}` (mặc định A-08)              |
-| autoReply             | object         | `{enabled: false, …}` — **mặc định false, MVP không có UI bật**                                         |
-| retentionDays         | number         | 90 (A-09)                                                                                               |
-| apiBaseUrl, teamToken | string         | API thuộc `*.workers.dev` (hoặc localhost khi dev); token rỗng hoặc ≥32 ký tự, không phải credential FB |
-| schemaVersion         | number         |                                                                                                         |
+| Trường                | Kiểu           | Mô tả                                                                                                                                             |
+| --------------------- | -------------- | ------------------------------------------------------------------------------------------------------------------------------------------------- |
+| allowlist             | `GroupRef[]`   | `{groupId, name, url, active}` — nhóm được phép theo dõi                                                                                          |
+| teamSkills            | `SkillField[]` | Lĩnh vực team nhận (đã chốt: `graphic_design`, `video_editing`, `web_dev`, `architecture`)                                                        |
+| teamProfile           | `string`       | 2–3 câu năng lực dùng để cá nhân hóa bình luận                                                                                                    |
+| members               | `TeamMember[]` | Xem 2.2                                                                                                                                           |
+| thresholds            | object         | `{ignoreBelow: 75, reviewUpTo: 94, autoEligibleFrom: 95}` — hằng số, hiển thị chỉ-đọc trong MVP                                                   |
+| limits                | object         | `{maxCommentsPerDay: 10, minCommentIntervalMin: 5, maxAiCallsPerDay: 200}` (mặc định A-08)                                                        |
+| autoReply             | object         | `{enabled: false, …}` — **mặc định false, MVP không có UI bật**                                                                                   |
+| notifications         | object         | `{enabled: true}` — thông báo desktop khi có lead mới chờ duyệt (P6.1, DUC duyệt 2026-07-20). Thông báo cục bộ của Chrome, tắt được trong Options |
+| retentionDays         | number         | 90 (A-09)                                                                                                                                         |
+| apiBaseUrl, teamToken | string         | API thuộc `*.workers.dev` (hoặc localhost khi dev); token rỗng hoặc ≥32 ký tự, không phải credential FB                                           |
+| schemaVersion         | number         |                                                                                                                                                   |
 
 ### 2.2 TeamMember
 
