@@ -168,6 +168,71 @@ describe("ReadOnlyPipeline P6", () => {
     expect(api.classify).toHaveBeenCalledOnce();
   });
 
+  it("bug 2026-07-20: bài lọc insufficient_text được xử lý lại khi nội dung đủ dài hơn", async () => {
+    const { pipeline, api, flush } = setup();
+    const short = rawPost("201", "Cần");
+    const first = pipeline.enqueue(short);
+    await flush();
+    await first;
+
+    let leads = await pipeline.listLeads();
+    expect(leads).toHaveLength(1);
+    expect(leads[0]).toMatchObject({
+      status: "filtered_out",
+      filterReasons: ["insufficient_text"],
+    });
+    expect(api.classify).not.toHaveBeenCalled();
+
+    // Content script gửi lại CÙNG postKey sau khi bài ẩn danh được mở và
+    // Facebook hiện đủ nội dung.
+    const full = rawPost(
+      "201",
+      "Cần thuê 1 bạn thiết kế logo + banner, có budget, cần gấp.",
+    );
+    const second = pipeline.enqueue(full);
+    await flush();
+    await second;
+
+    leads = await pipeline.listLeads();
+    expect(leads).toHaveLength(1); // cập nhật tại chỗ, không tạo lead thứ hai
+    expect(leads[0]).toMatchObject({ status: "needs_review" });
+    expect(api.classify).toHaveBeenCalledOnce();
+  });
+
+  it("bài lọc vì lý do khác insufficient_text vẫn bị dedupe như cũ dù nội dung đổi", async () => {
+    const { pipeline, api, flush } = setup();
+    const seeking = rawPost(
+      "202",
+      "Mình đang nhận job thiết kế, đây là portfolio của mình.",
+    );
+    const first = pipeline.enqueue(seeking);
+    await flush();
+    await first;
+
+    let leads = await pipeline.listLeads();
+    expect(leads).toHaveLength(1);
+    expect(leads[0]).toMatchObject({
+      status: "filtered_out",
+      filterReasons: ["poster_seeking_work"],
+    });
+
+    const resent = rawPost(
+      "202",
+      "Cần thuê 1 bạn thiết kế logo + banner, có budget, cần gấp rõ ràng.",
+    );
+    const second = pipeline.enqueue(resent);
+    await flush();
+    await second;
+
+    leads = await pipeline.listLeads();
+    expect(leads).toHaveLength(1);
+    expect(leads[0]).toMatchObject({
+      status: "filtered_out",
+      filterReasons: ["poster_seeking_work"],
+    });
+    expect(api.classify).not.toHaveBeenCalled();
+  });
+
   it("sửa nháp và duyệt chỉ đổi dữ liệu local kèm audit", async () => {
     const { storage, pipeline, flush } = setup();
     const pending = pipeline.enqueue(

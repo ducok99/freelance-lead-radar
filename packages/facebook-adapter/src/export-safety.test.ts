@@ -11,6 +11,8 @@ describe("export surface an toàn", () => {
       "findCommentBox",
       "findPostElements",
       "isExtractionFailure",
+      // P6.3: lấy groupId theo URL trang để khớp allowlist (số vs tên chữ).
+      "parseGroupIdFromUrl",
       "parsePostKey",
       "parsePostReference",
     ]);

@@ -1,6 +1,12 @@
 import { RawPostSchema, type RawPost } from "@flr/shared";
 import { SELECTORS } from "./selectors";
-import { parsePostReference, type ParsedPostReference } from "./urls";
+import {
+  parseGroupIdFromUrl,
+  parsePostReference,
+  type ParsedPostReference,
+} from "./urls";
+
+const FACEBOOK_ORIGIN = "https://www.facebook.com";
 
 export type ExtractionFailureCode =
   "invalid_element" | "missing_permalink" | "missing_text" | "invalid_post";
@@ -35,6 +41,46 @@ const normalizeText = (value: string): string =>
 
 const belongsToArticle = (node: Element, article: Element): boolean =>
   node.closest(SELECTORS.post) === article;
+
+// Bug 2026-07-21 (xác nhận qua DevTools thật): Facebook gắn role="article"
+// cho MỖI BÌNH LUẬN trong luồng bình luận, không chỉ cho bài đăng gốc — và
+// khối bình luận này KHÔNG nằm lồng trong role="article" của chính bài đăng
+// (Facebook dựng phần bình luận thành một nhánh DOM riêng), nên bộ lọc "loại
+// bài lồng nhau" bên dưới không bắt được. Facebook tự gắn aria-label bắt đầu
+// bằng "Bình luận..." (hoặc "Comment..." nếu tài khoản dùng tiếng Anh) cho
+// đúng các phần tử này — dùng chính nhãn đó của Facebook để loại bình luận ra
+// khỏi danh sách bài đăng, tránh đưa nội dung bình luận (thường là người khác
+// tự quảng cáo dịch vụ của họ) vào chấm điểm như thể là một bài đăng thật.
+const COMMENT_ARIA_LABEL_PREFIXES = ["bình luận", "comment"];
+
+const isCommentArticle = (article: Element): boolean => {
+  const label = article.getAttribute("aria-label");
+  if (label === null) return false;
+  const normalized = label.trim().toLowerCase();
+  return COMMENT_ARIA_LABEL_PREFIXES.some((prefix) =>
+    normalized.startsWith(prefix),
+  );
+};
+
+// P6.10 (xác nhận trên Facebook thật, cùng DUC, 2026-07-21): bài viết hiện tại
+// không còn để lộ link "địa chỉ cố định" ngay trên chính nó (dòng thời gian
+// không có href) — link permalink chỉ còn xuất hiện trong DOM của MỘT COMMENT
+// lồng bên trong (thời gian riêng của comment đó luôn trỏ ngược về đúng bài
+// viết cha, kèm mã comment). Link đó vẫn đúng bài, chỉ là nằm trong subtree
+// của comment nên `belongsToArticle` (yêu cầu khớp CHÍNH XÁC article) từ chối
+// nhầm nó. KHÁC HẲN trường hợp bài CHIA SẺ LỒNG BÊN TRONG (P3) — đó là một
+// bài viết ĐỘC LẬP khác, phải tiếp tục bị bỏ qua. Chỉ nới lỏng cho đúng một
+// trường hợp: chủ sở hữu gần nhất là COMMENT (không phải bài chia sẻ) —
+// CHỈ dùng cho việc tìm permalink; text/author/timestamp vẫn dùng
+// `belongsToArticle` nghiêm ngặt như cũ để không lấy nhầm nội dung của comment.
+const belongsToArticleOrNestedComment = (
+  node: Element,
+  article: Element,
+): boolean => {
+  const owner = node.closest(SELECTORS.post);
+  if (owner === article) return true;
+  return owner !== null && isCommentArticle(owner);
+};
 
 const ownedMatches = (
   article: Element,
@@ -99,7 +145,7 @@ const extractReference = (
   for (const link of article.querySelectorAll<HTMLAnchorElement>(
     SELECTORS.link,
   )) {
-    if (!belongsToArticle(link, article)) continue;
+    if (!belongsToArticleOrNestedComment(link, article)) continue;
     const reference = parsePostReference(link.href);
     if (reference !== null) return reference;
   }
@@ -168,10 +214,25 @@ export const extractPost = (
     const text = textFromElements(getMessageElements(element));
     if (text.length === 0) return failure("missing_text");
 
+    // Bug P6.3: nhóm phải lấy theo TRANG đang mở (khớp allowlist), không lấy
+    // theo permalink bài — vì Facebook dùng số ở thanh địa chỉ nhưng tên chữ
+    // trong link bài. Không có URL trang → giữ groupId của permalink (đúng
+    // cho trang permalink đơn lẻ và cho fixture cũ không truyền currentUrl).
+    const pageGroupId =
+      options.currentUrl === undefined
+        ? null
+        : parseGroupIdFromUrl(options.currentUrl);
+    const groupId = pageGroupId ?? reference.groupId;
+    const postKey = `${groupId}:${reference.postId}`;
+    const permalink =
+      pageGroupId === null
+        ? reference.permalink
+        : `${FACEBOOK_ORIGIN}/groups/${groupId}/posts/${reference.postId}/`;
+
     const parsed = RawPostSchema.safeParse({
-      postKey: reference.postKey,
-      groupId: reference.groupId,
-      permalink: reference.permalink,
+      postKey,
+      groupId,
+      permalink,
       ...getAuthor(element),
       text,
       truncated: isTruncated(element),
@@ -192,6 +253,7 @@ export const extractPost = (
 export const findPostElements = (root: ParentNode): Element[] => {
   try {
     return [...root.querySelectorAll(SELECTORS.post)].filter((article) => {
+      if (isCommentArticle(article)) return false;
       const parentArticle = article.parentElement?.closest(SELECTORS.post);
       return parentArticle === null || parentArticle === undefined;
     });

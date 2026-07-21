@@ -1,0 +1,9 @@
+{
+  "variant": "P6.9: feed hiện tại — bài viết là div thường (không role=article), chỉ comment còn giữ role=article, 1 bài có comment lồng bên trong",
+  "capturedAt": "2026-07-21",
+  "expectedArticleCount": 2,
+  "expectedPostKeys": [
+    "100000000000001:200000000000021",
+    "100000000000001:200000000000022"
+  ]
+}

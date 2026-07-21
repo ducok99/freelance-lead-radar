@@ -65,18 +65,39 @@ const pipeline = new ReadOnlyPipeline({
   }),
 });
 
+// P6.3: các lệnh trang trí (badge, side panel, access level) không được phép
+// làm hỏng khởi động. Nếu một API trình duyệt vấp, ghi log rồi đi tiếp để
+// pipeline vẫn chạy và vẫn nhận message — tránh "FLR initialization failed"
+// kéo sập luôn phần đọc bài.
+const bestEffort = async (
+  label: string,
+  action: () => Promise<unknown>,
+): Promise<void> => {
+  try {
+    await action();
+  } catch {
+    console.warn(`FLR init bỏ qua bước không quan trọng: ${label}`);
+  }
+};
+
 let initialization: Promise<void> | undefined;
 const initialize = (): Promise<void> => {
   initialization ??= (async () => {
-    await chrome.storage.local.setAccessLevel({
-      accessLevel: "TRUSTED_CONTEXTS",
-    });
+    await bestEffort("setAccessLevel", () =>
+      chrome.storage.local.setAccessLevel({
+        accessLevel: "TRUSTED_CONTEXTS",
+      }),
+    );
     await ensureStorageDefaults(chromeLocalStorage, new Date());
-    await chrome.sidePanel.setPanelBehavior({ openPanelOnActionClick: false });
-    await chrome.action.setBadgeBackgroundColor({
-      color: BADGE_BACKGROUND_COLOR,
-    });
-    await updatePendingBadge(await pipeline.listLeads());
+    await bestEffort("setPanelBehavior", () =>
+      chrome.sidePanel.setPanelBehavior({ openPanelOnActionClick: false }),
+    );
+    await bestEffort("setBadgeBackgroundColor", () =>
+      chrome.action.setBadgeBackgroundColor({ color: BADGE_BACKGROUND_COLOR }),
+    );
+    await bestEffort("updateBadge", async () =>
+      updatePendingBadge(await pipeline.listLeads()),
+    );
     await pipeline.resumeInterrupted();
   })().catch((error: unknown) => {
     initialization = undefined;

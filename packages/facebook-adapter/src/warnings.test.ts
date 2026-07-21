@@ -46,6 +46,33 @@ describe("detectWarningSignals", () => {
     expect(detectWarningSignals(documentFrom(html, url), url)).toEqual([]);
   });
 
+  it("P6.7: toast lỗi thường có câu thử lại sau KHÔNG phải cảnh báo chặn", () => {
+    // Facebook (nhất là khi có ad blocker) hay hiện toast dạng aria-live với
+    // câu "vui lòng thử lại sau" — trước đây câu này ngắt cầu dao oan.
+    const html = `
+      <div aria-live="assertive">Không tải được nội dung. Vui lòng thử lại sau.</div>
+      <article role="article"><div data-ad-preview="message">Cần thuê designer làm logo.</div></article>`;
+    expect(detectWarningSignals(documentFrom(html, url), url)).toEqual([]);
+  });
+
+  it("P6.7: modal xem bài viết (dialog chứa article) không bị coi là hộp cảnh báo", () => {
+    const html = `
+      <div role="dialog">
+        <article role="article">
+          <div data-ad-preview="message">Cần thuê 1 bạn thiết kế logo.</div>
+        </article>
+        <div dir="auto">Bình luận: bận quá, bạn thử lại sau nhé, có gì mình cảnh báo từ facebook cho.</div>
+      </div>`;
+    expect(detectWarningSignals(documentFrom(html, url), url)).toEqual([]);
+  });
+
+  it("P6.7: vẫn nhận diện màn chặn thao tác quá nhanh", () => {
+    const html = `<div role="alert">Bạn đang thao tác quá nhanh. Hãy chậm lại.</div>`;
+    expect(detectWarningSignals(documentFrom(html, url), url)).toEqual([
+      { reason: "temporarily_blocked", evidence: "text" },
+    ]);
+  });
+
   it("nhận diện cảnh báo giới hạn chung trong role alert", () => {
     const html = `<div role="alert">Chúng tôi đã giới hạn một số hoạt động trên tài khoản.</div>`;
     expect(detectWarningSignals(documentFrom(html, url), url)).toEqual([

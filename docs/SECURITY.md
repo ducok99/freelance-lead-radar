@@ -74,6 +74,8 @@ Cố tình KHÔNG xin: `tabs`, `cookies`, `webRequest`, `scripting`, `history`, 
 | API key AI (Anthropic) | `wrangler secret put ANTHROPIC_API_KEY` (production) / `.dev.vars` local (gitignored)                             |
 | TEAM_TOKEN             | `wrangler secret put TEAM_TOKEN`; người dùng dán vào Options của extension (lưu chrome.storage.local trên máy họ) |
 
+**P6.2 (bản miễn phí Workers AI)**: KHÔNG có secret AI — model chạy trong Worker qua binding `env.AI`, không dùng key bên thứ ba. Đây là một điểm an toàn: không tồn tại API key AI nào để rò rỉ. Secret duy nhất còn lại là `TEAM_TOKEN`.
+
 Quy tắc: repo không có `.env` thật (chỉ `.dev.vars.example` với giá trị giả); `.gitignore` chặn `.dev.vars`, `.env*`; CI có bước grep pattern key (`sk-ant-`, `Bearer ey`) — build fail nếu dính.
 
 ## 7. Dữ liệu cá nhân — Nghị định 13/2023/NĐ-CP (Việt Nam)

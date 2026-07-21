@@ -1,0 +1,117 @@
+diff --git a/fixtures/facebook/feed-no-article-role.html b/fixtures/facebook/feed-no-article-role.html
+new file mode 100644
+index 0000000..981154b
+--- /dev/null
++++ b/fixtures/facebook/feed-no-article-role.html
+@@ -0,0 +1,23 @@
++<!doctype html>
++<html lang="vi">
++  <body>
++    <div role="feed">
++      <div>
++        <h2><a role="link" href="/tran-g-fake/">Tran G.</a></h2>
++        <a role="link" href="/groups/100000000000001/posts/200000000000021/"><time>3 giờ</time></a>
++        <div data-ad-preview="message">Cần thiết kế banner sự kiện, gấp trong tuần.</div>
++        <div>
++          <div role="article" aria-label="Bình luận dưới tên Nguyen H. vào 2 giờ trước">
++            <a role="link" href="/nguyen-h-fake/">Nguyen H.</a>
++            <div>Mình có thể hỗ trợ, inbox nhé.</div>
++          </div>
++        </div>
++      </div>
++      <div>
++        <h2><a role="link" href="/le-k-fake/">Le K.</a></h2>
++        <a role="link" href="/groups/100000000000001/posts/200000000000022/"><time>5 giờ</time></a>
++        <div data-ad-preview="message">Tìm bạn dựng video TikTok cho shop.</div>
++      </div>
++    </div>
++  </body>
++</html>
+diff --git a/fixtures/facebook/feed-no-article-role.meta.json b/fixtures/facebook/feed-no-article-role.meta.json
+new file mode 100644
+index 0000000..db18ad0
+--- /dev/null
++++ b/fixtures/facebook/feed-no-article-role.meta.json
+@@ -0,0 +1,9 @@
++{
++  "variant": "P6.9: feed hiện tại — bài viết là div thường (không role=article), chỉ comment còn giữ role=article, 1 bài có comment lồng bên trong",
++  "capturedAt": "2026-07-21",
++  "expectedArticleCount": 2,
++  "expectedPostKeys": [
++    "100000000000001:200000000000021",
++    "100000000000001:200000000000022"
++  ]
++}
+diff --git a/docs/ARCHITECTURE.md b/docs/ARCHITECTURE.md
+index f5a20d9..6920279 100644
+--- a/docs/ARCHITECTURE.md
++++ b/docs/ARCHITECTURE.md
+@@ -143,6 +143,7 @@ Pure function, không side effect. Module chính: `lexicon/` (bộ từ khóa ti
+ ### 4.5 packages/facebook-adapter
+ 
+ - **Chiến lược selector**: dựa `role`/`aria-*`/cấu trúc ngữ nghĩa (`role="feed"`, `role="article"`) và heuristic văn bản; **cấm tuyệt đối class name obfuscated** của Facebook. Mọi selector khai báo tập trung một file để dễ vá.
++  - P6.9 (2026-07-21): Facebook thực tế không còn gắn `role="article"` cho bài viết gốc trong feed nhóm (chỉ COMMENT còn giữ role này). `SELECTORS.post` vì vậy nhận cả hai: `[role="article"]` (comment, và các giao diện Facebook khác có thể vẫn dùng) lẫn "con trực tiếp của khung `role="feed"`" (bài viết gốc hiện tại). Vẫn thuần role/cấu trúc, không đụng class obfuscated.
+ - `extractPost(el): RawPost | ExtractionFailure` — không bao giờ throw; layout lạ → trả failure có mã, background đếm vào extractionFailureRate.
+ - `parsePostKey(url)`: hỗ trợ các dạng `/groups/{gid}/posts/{pid}`, `/groups/{gid}/permalink/{pid}`, `story.php?story_fbid=…&id=…`, dạng `pfbid…` → chuẩn hóa `groupId:postId`.
+ - `fillCommentBox(el, text)`: tìm ô bình luận của đúng bài đang mở, điền text, đưa focus. **Package này không export bất kỳ hàm submit/click-đăng nào trong MVP** (bất biến, có test tĩnh bảo vệ — SECURITY.md §3).
+diff --git a/packages/facebook-adapter/src/extract.test.ts b/packages/facebook-adapter/src/extract.test.ts
+index 2efcd1f..6b0747e 100644
+--- a/packages/facebook-adapter/src/extract.test.ts
++++ b/packages/facebook-adapter/src/extract.test.ts
+@@ -4,6 +4,8 @@ import anonymousHtml from "../../../fixtures/facebook/anonymous-post.html?raw";
+ import anonymousMeta from "../../../fixtures/facebook/anonymous-post.meta.json";
+ import contactHtml from "../../../fixtures/facebook/contact-post.html?raw";
+ import contactMeta from "../../../fixtures/facebook/contact-post.meta.json";
++import feedNoArticleRoleHtml from "../../../fixtures/facebook/feed-no-article-role.html?raw";
++import feedNoArticleRoleMeta from "../../../fixtures/facebook/feed-no-article-role.meta.json";
+ import imageHtml from "../../../fixtures/facebook/image-post.html?raw";
+ import imageMeta from "../../../fixtures/facebook/image-post.meta.json";
+ import layoutWeirdHtml from "../../../fixtures/facebook/layout-weird.html?raw";
+@@ -143,6 +145,26 @@ describe("extractPost", () => {
+     expect(findPostElements(documentFrom(html))).toHaveLength(1);
+   });
+ 
++  it("P6.9: Facebook hiện tại không gắn role=article cho bài viết (chỉ comment còn giữ) — vẫn nhận diện đúng nhờ bài là con trực tiếp của role=feed", () => {
++    // Kiểm tra trực tiếp trên Facebook thật (2026-07-21, cùng DUC) cho thấy bài
++    // viết gốc trong feed nhóm không còn role="article" — chỉ comment còn giữ.
++    // Fixture này mô phỏng đúng cấu trúc đó: 2 bài viết là <div> thường (con
++    // trực tiếp của role=feed), 1 bài có comment thật (role=article, aria-label
++    // "Bình luận...") lồng bên trong để xác nhận comment vẫn bị loại đúng.
++    const articles = findPostElements(documentFrom(feedNoArticleRoleHtml));
++    expect(articles).toHaveLength(feedNoArticleRoleMeta.expectedArticleCount);
++    const results = articles.map((article) => extractPost(article, { seenAt }));
++    const postKeys = results.flatMap((result) =>
++      isExtractionFailure(result) ? [] : [result.postKey],
++    );
++    expect(postKeys).toEqual(feedNoArticleRoleMeta.expectedPostKeys);
++    // Bài có comment lồng bên trong không được lấy nhầm chữ/link của comment.
++    const firstPost = results[0]!;
++    expect(isExtractionFailure(firstPost)).toBe(false);
++    expect(JSON.stringify(firstPost)).not.toContain("Mình có thể hỗ trợ");
++    expect(JSON.stringify(firstPost)).not.toContain("nguyen-h-fake");
++  });
++
+   it("layout cắt xén trả failure có mã, không throw", () => {
+     expect(() =>
+       extractPost(singleArticle(layoutWeirdHtml), { seenAt }),
+diff --git a/packages/facebook-adapter/src/selectors.ts b/packages/facebook-adapter/src/selectors.ts
+index 7ac42e3..6762966 100644
+--- a/packages/facebook-adapter/src/selectors.ts
++++ b/packages/facebook-adapter/src/selectors.ts
+@@ -3,7 +3,15 @@
+  * Facebook đã obfuscate vào đây vì chúng thay đổi liên tục.
+  */
+ export const SELECTORS = {
+-  post: '[role="article"]',
++  // P6.9: kiểm tra trực tiếp trên Facebook thật (2026-07-21) cho thấy bài viết
++  // gốc trong feed nhóm KHÔNG còn mang role="article" nữa — chỉ COMMENT còn
++  // giữ role này (đã xử lý ở P6.5). Bài viết gốc giờ chỉ là <div> thường,
++  // nhưng luôn là CON TRỰC TIẾP của khung role="feed". Giữ nguyên nhánh
++  // role="article" cũ (comment vẫn cần nó; trang xem 1 bài hoặc bản Facebook
++  // khác có thể vẫn dùng) và thêm nhánh mới. Selector CSS hỗ trợ tổ hợp ">"
++  // nên .closest()/.matches() ở extract.ts hoạt động đúng luôn, không cần sửa
++  // logic xác định "thuộc về bài nào" ở nơi khác.
++  post: '[role="article"], [role="feed"] > div',
+   feed: '[role="feed"]',
+   message: [
+     '[data-ad-preview="message"]',

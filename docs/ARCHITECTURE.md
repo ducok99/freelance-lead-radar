@@ -143,6 +143,7 @@ Pure function, không side effect. Module chính: `lexicon/` (bộ từ khóa ti
 ### 4.5 packages/facebook-adapter
 
 - **Chiến lược selector**: dựa `role`/`aria-*`/cấu trúc ngữ nghĩa (`role="feed"`, `role="article"`) và heuristic văn bản; **cấm tuyệt đối class name obfuscated** của Facebook. Mọi selector khai báo tập trung một file để dễ vá.
+  - P6.9 (2026-07-21): Facebook thực tế không còn gắn `role="article"` cho bài viết gốc trong feed nhóm (chỉ COMMENT còn giữ role này). `SELECTORS.post` vì vậy nhận cả hai: `[role="article"]` (comment, và các giao diện Facebook khác có thể vẫn dùng) lẫn "con trực tiếp của khung `role="feed"`" (bài viết gốc hiện tại). Vẫn thuần role/cấu trúc, không đụng class obfuscated.
 - `extractPost(el): RawPost | ExtractionFailure` — không bao giờ throw; layout lạ → trả failure có mã, background đếm vào extractionFailureRate.
 - `parsePostKey(url)`: hỗ trợ các dạng `/groups/{gid}/posts/{pid}`, `/groups/{gid}/permalink/{pid}`, `story.php?story_fbid=…&id=…`, dạng `pfbid…` → chuẩn hóa `groupId:postId`.
 - `fillCommentBox(el, text)`: tìm ô bình luận của đúng bài đang mở, điền text, đưa focus. **Package này không export bất kỳ hàm submit/click-đăng nào trong MVP** (bất biến, có test tĩnh bảo vệ — SECURITY.md §3).

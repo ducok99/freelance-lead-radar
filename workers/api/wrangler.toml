@@ -5,7 +5,7 @@ compatibility_date = "2026-07-20"
 # Local P4 dùng MockProvider: không cần key AI và không gọi mạng.
 [vars]
 AI_PROVIDER = "mock"
-EXTENSION_ORIGIN = "chrome-extension://test-extension-id"
+EXTENSION_ORIGIN = "chrome-extension://lfkpmdeopncejjnagplhmmebkhojfnag"
 
 [[ratelimits]]
 name = "API_RATE_LIMITER"
@@ -15,8 +15,26 @@ namespace_id = "4702001"
   limit = 60
   period = 60
 
-# Trước khi deploy production: thay EXTENSION_ORIGIN và hai model bằng giá trị
-# đã duyệt. TEAM_TOKEN/ANTHROPIC_API_KEY luôn đặt bằng `wrangler secret put`.
+# ─────────────────────────────────────────────────────────────────────────
+# P6.2 — Bản MIỄN PHÍ (Cloudflare Workers AI). Deploy bằng:
+#   wrangler deploy --env free
+# Chỉ cần thay EXTENSION_ORIGIN bằng ID extension thật (xem
+# docs/HUONG-DAN-DEPLOY-FREE.md). KHÔNG cần API key AI — model chạy ngay
+# trong Worker qua binding `AI`. TEAM_TOKEN vẫn đặt bằng `wrangler secret put`.
+[env.free.vars]
+AI_PROVIDER = "workers_ai"
+EXTENSION_ORIGIN = "chrome-extension://lfkpmdeopncejjnagplhmmebkhojfnag"
+# Đổi model tại đây nếu muốn chất lượng cao hơn / rẻ neuron hơn.
+WORKERS_AI_CLASSIFY_MODEL = "@cf/meta/llama-3.1-8b-instruct-fp8"
+WORKERS_AI_DRAFT_MODEL = "@cf/meta/llama-3.3-70b-instruct-fp8-fast"
+
+[env.free.ai]
+binding = "AI"
+
+# ─────────────────────────────────────────────────────────────────────────
+# Bản Anthropic trả phí (chất lượng cao nhất). Trước khi deploy production:
+# thay EXTENSION_ORIGIN và hai model bằng giá trị đã duyệt.
+# TEAM_TOKEN/ANTHROPIC_API_KEY luôn đặt bằng `wrangler secret put`.
 [env.production.vars]
 AI_PROVIDER = "anthropic"
 EXTENSION_ORIGIN = "chrome-extension://REPLACE_AFTER_P5"

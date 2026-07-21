@@ -1,0 +1,173 @@
+diff --git a/apps/extension/src/background/service-worker.ts b/apps/extension/src/background/service-worker.ts
+index 865e404..86f563c 100644
+--- a/apps/extension/src/background/service-worker.ts
++++ b/apps/extension/src/background/service-worker.ts
+@@ -65,18 +65,39 @@ const pipeline = new ReadOnlyPipeline({
+   }),
+ });
+ 
++// P6.3: các lệnh trang trí (badge, side panel, access level) không được phép
++// làm hỏng khởi động. Nếu một API trình duyệt vấp, ghi log rồi đi tiếp để
++// pipeline vẫn chạy và vẫn nhận message — tránh "FLR initialization failed"
++// kéo sập luôn phần đọc bài.
++const bestEffort = async (
++  label: string,
++  action: () => Promise<unknown>,
++): Promise<void> => {
++  try {
++    await action();
++  } catch {
++    console.warn(`FLR init bỏ qua bước không quan trọng: ${label}`);
++  }
++};
++
+ let initialization: Promise<void> | undefined;
+ const initialize = (): Promise<void> => {
+   initialization ??= (async () => {
+-    await chrome.storage.local.setAccessLevel({
+-      accessLevel: "TRUSTED_CONTEXTS",
+-    });
++    await bestEffort("setAccessLevel", () =>
++      chrome.storage.local.setAccessLevel({
++        accessLevel: "TRUSTED_CONTEXTS",
++      }),
++    );
+     await ensureStorageDefaults(chromeLocalStorage, new Date());
+-    await chrome.sidePanel.setPanelBehavior({ openPanelOnActionClick: false });
+-    await chrome.action.setBadgeBackgroundColor({
+-      color: BADGE_BACKGROUND_COLOR,
+-    });
+-    await updatePendingBadge(await pipeline.listLeads());
++    await bestEffort("setPanelBehavior", () =>
++      chrome.sidePanel.setPanelBehavior({ openPanelOnActionClick: false }),
++    );
++    await bestEffort("setBadgeBackgroundColor", () =>
++      chrome.action.setBadgeBackgroundColor({ color: BADGE_BACKGROUND_COLOR }),
++    );
++    await bestEffort("updateBadge", async () =>
++      updatePendingBadge(await pipeline.listLeads()),
++    );
+     await pipeline.resumeInterrupted();
+   })().catch((error: unknown) => {
+     initialization = undefined;
+diff --git a/packages/facebook-adapter/src/export-safety.test.ts b/packages/facebook-adapter/src/export-safety.test.ts
+index c34282d..6afcebb 100644
+--- a/packages/facebook-adapter/src/export-safety.test.ts
++++ b/packages/facebook-adapter/src/export-safety.test.ts
+@@ -11,6 +11,8 @@ describe("export surface an toàn", () => {
+       "findCommentBox",
+       "findPostElements",
+       "isExtractionFailure",
++      // P6.3: lấy groupId theo URL trang để khớp allowlist (số vs tên chữ).
++      "parseGroupIdFromUrl",
+       "parsePostKey",
+       "parsePostReference",
+     ]);
+diff --git a/packages/facebook-adapter/src/extract.test.ts b/packages/facebook-adapter/src/extract.test.ts
+index a1dd2c3..23e1976 100644
+--- a/packages/facebook-adapter/src/extract.test.ts
++++ b/packages/facebook-adapter/src/extract.test.ts
+@@ -61,6 +61,26 @@ describe("extractPost", () => {
+     expect(result).toMatchObject({ ...permalinkMeta.expected, seenAt });
+   });
+ 
++  it("bug P6.3: nhóm lấy theo URL trang (số) khi permalink dùng tên chữ", () => {
++    // Trang mở bằng groupId số; permalink bài lại dùng slug hoithietkedao.vn.
++    const pageUrl = "https://www.facebook.com/groups/155221226781882/";
++    const html = `<article role="article">
++      <a href="https://www.facebook.com/groups/hoithietkedao.vn/posts/1779708656608420/?__cft__[0]=abc&__tn__=x"><span dir="auto">2 giờ</span></a>
++      <div data-ad-preview="message">Cần thuê 1 bạn thiết kế logo + banner, có ngân sách.</div>
++    </article>`;
++    const result = extractPost(singleArticle(html, pageUrl), {
++      seenAt,
++      currentUrl: pageUrl,
++    });
++    expect(isExtractionFailure(result)).toBe(false);
++    expect(result).toMatchObject({
++      groupId: "155221226781882",
++      postKey: "155221226781882:1779708656608420",
++      permalink:
++        "https://www.facebook.com/groups/155221226781882/posts/1779708656608420/",
++    });
++  });
++
+   it("không lấy text/link của bài share lồng", () => {
+     const document = documentFrom(sharedHtml);
+     expect(findPostElements(document)).toHaveLength(1);
+diff --git a/packages/facebook-adapter/src/extract.ts b/packages/facebook-adapter/src/extract.ts
+index 7fd6afb..c7076de 100644
+--- a/packages/facebook-adapter/src/extract.ts
++++ b/packages/facebook-adapter/src/extract.ts
+@@ -1,6 +1,12 @@
+ import { RawPostSchema, type RawPost } from "@flr/shared";
+ import { SELECTORS } from "./selectors";
+-import { parsePostReference, type ParsedPostReference } from "./urls";
++import {
++  parseGroupIdFromUrl,
++  parsePostReference,
++  type ParsedPostReference,
++} from "./urls";
++
++const FACEBOOK_ORIGIN = "https://www.facebook.com";
+ 
+ export type ExtractionFailureCode =
+   "invalid_element" | "missing_permalink" | "missing_text" | "invalid_post";
+@@ -168,10 +174,25 @@ export const extractPost = (
+     const text = textFromElements(getMessageElements(element));
+     if (text.length === 0) return failure("missing_text");
+ 
++    // Bug P6.3: nhóm phải lấy theo TRANG đang mở (khớp allowlist), không lấy
++    // theo permalink bài — vì Facebook dùng số ở thanh địa chỉ nhưng tên chữ
++    // trong link bài. Không có URL trang → giữ groupId của permalink (đúng
++    // cho trang permalink đơn lẻ và cho fixture cũ không truyền currentUrl).
++    const pageGroupId =
++      options.currentUrl === undefined
++        ? null
++        : parseGroupIdFromUrl(options.currentUrl);
++    const groupId = pageGroupId ?? reference.groupId;
++    const postKey = `${groupId}:${reference.postId}`;
++    const permalink =
++      pageGroupId === null
++        ? reference.permalink
++        : `${FACEBOOK_ORIGIN}/groups/${groupId}/posts/${reference.postId}/`;
++
+     const parsed = RawPostSchema.safeParse({
+-      postKey: reference.postKey,
+-      groupId: reference.groupId,
+-      permalink: reference.permalink,
++      postKey,
++      groupId,
++      permalink,
+       ...getAuthor(element),
+       text,
+       truncated: isTruncated(element),
+diff --git a/packages/facebook-adapter/src/urls.ts b/packages/facebook-adapter/src/urls.ts
+index 3a577e7..0485de9 100644
+--- a/packages/facebook-adapter/src/urls.ts
++++ b/packages/facebook-adapter/src/urls.ts
+@@ -88,3 +88,25 @@ export const parsePostReference = (
+ 
+ export const parsePostKey = (url: string): string | null =>
+   parsePostReference(url)?.postKey ?? null;
++
++/**
++ * Lấy định danh nhóm từ URL TRANG (thanh địa chỉ) — có thể là số
++ * (`155221226781882`) hoặc tên chữ (`hoithietkedao.vn`). Dùng làm nguồn chân
++ * lý cho nhóm của một bài, vì Facebook đặt nhóm bằng SỐ trên thanh địa chỉ
++ * nhưng bằng TÊN CHỮ trong permalink bài viết — hai cái không bằng nhau khiến
++ * khớp allowlist thất bại (bug P6.3). Quy tắc trùng khớp `extractGroupId`
++ * trong apps/extension để senderGroupId === post.groupId.
++ */
++export const parseGroupIdFromUrl = (urlValue: string): string | null => {
++  try {
++    const url = new URL(urlValue, FACEBOOK_ORIGIN);
++    if (url.protocol !== "https:" || url.hostname !== "www.facebook.com") {
++      return null;
++    }
++    const parts = url.pathname.split("/").filter(Boolean);
++    if (parts[0] !== "groups" || parts[1] === undefined) return null;
++    return /^[A-Za-z0-9._-]{1,128}$/.test(parts[1]) ? parts[1] : null;
++  } catch {
++    return null;
++  }
++};

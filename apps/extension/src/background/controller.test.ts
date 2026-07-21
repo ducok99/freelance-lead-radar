@@ -89,6 +89,36 @@ describe("background controller P5", () => {
     });
   });
 
+  it("P6.7: RESET_CIRCUIT_BREAKER đóng lại cầu dao và ghi audit", async () => {
+    const storage = new MemoryStorage();
+    const ports = createPorts(storage);
+    await handleBackgroundMessage(
+      {
+        type: "WARNING_DETECTED",
+        reason: "temporarily_blocked",
+        detectedAt: "2026-07-20T08:00:00.000Z",
+      },
+      "https://www.facebook.com/groups/allowed.group",
+      ports,
+    );
+    expect(storage.values.get(STORAGE_KEYS.state)).toMatchObject({
+      circuitBreaker: { state: "tripped" },
+    });
+
+    const response = await handleBackgroundMessage(
+      { type: "RESET_CIRCUIT_BREAKER" },
+      undefined,
+      ports,
+    );
+    expect(response).toMatchObject({ type: "GATE_STATE" });
+    expect(storage.values.get(STORAGE_KEYS.state)).toMatchObject({
+      circuitBreaker: { state: "armed" },
+    });
+    expect(ports.pipeline.recordSystemAudit).toHaveBeenCalledWith(
+      "circuit_reset",
+    );
+  });
+
   it("POST_SEEN chỉ vào pipeline khi sender và post cùng nhóm allowlist", async () => {
     const storage = new MemoryStorage();
     storage.values.set(STORAGE_KEYS.settings, {

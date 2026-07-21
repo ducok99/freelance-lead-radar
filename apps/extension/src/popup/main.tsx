@@ -4,6 +4,7 @@ import {
   ExtensionMessageSchema,
   type CounterState,
   type SystemState,
+  type WarningReason,
 } from "@flr/shared";
 import { groupIsAllowlisted } from "../background/controller";
 import {
@@ -13,6 +14,16 @@ import {
   readSystemState,
 } from "../lib/storage";
 import "../ui/styles.css";
+
+// P6.7: nhãn tiếng Việt cho lý do cầu dao an toàn tự ngắt.
+const WARNING_REASON_LABELS: Record<WarningReason, string> = {
+  captcha_detected: "phát hiện CAPTCHA",
+  checkpoint_detected: "Facebook yêu cầu xác minh (checkpoint)",
+  temporarily_blocked: "Facebook báo tạm thời bị chặn",
+  login_redirect: "bị đưa về trang đăng nhập",
+  facebook_warning: "Facebook hiển thị cảnh báo",
+  unknown_warning: "tín hiệu bất thường không xác định",
+};
 
 const Popup = () => {
   const [state, setState] = useState<SystemState | null>(null);
@@ -63,6 +74,33 @@ const Popup = () => {
     }
   };
 
+  // P6.7: trước đây KHÔNG có nút nào gửi RESET_CIRCUIT_BREAKER — cầu dao đã
+  // ngắt (kể cả do báo động giả) là hệ thống đứng im vĩnh viễn, "Bật lại hệ
+  // thống" chỉ tắt Emergency Stop chứ không đóng lại cầu dao. Nút này bổ sung
+  // đường hồi phục THỦ CÔNG đúng thiết kế SECURITY (con người chủ động reset
+  // sau khi đã kiểm tra tài khoản).
+  const resetBreaker = async () => {
+    if (isToggling) return;
+    setIsToggling(true);
+    setActionError("");
+    try {
+      const response: unknown = await chrome.runtime.sendMessage({
+        type: "RESET_CIRCUIT_BREAKER",
+      });
+      const parsed = ExtensionMessageSchema.safeParse(response);
+      if (!parsed.success || parsed.data.type !== "GATE_STATE") {
+        throw new Error("Background không xác nhận reset");
+      }
+      await reload();
+    } catch {
+      setActionError(
+        "Không reset được cầu dao. Hãy Reload extension tại chrome://extensions.",
+      );
+    } finally {
+      setIsToggling(false);
+    }
+  };
+
   const openSidePanel = async () => {
     const [tab] = await chrome.tabs.query({
       active: true,
@@ -72,6 +110,9 @@ const Popup = () => {
     await chrome.sidePanel.open({ tabId: tab.id });
     globalThis.close();
   };
+
+  const breaker = state?.circuitBreaker;
+  const stopped = state?.emergencyStop === true || breaker?.state === "tripped";
 
   return (
     <main className="app">
@@ -86,10 +127,8 @@ const Popup = () => {
       <section className="card">
         <div className="row">
           <h2>Trạng thái</h2>
-          <span
-            className={`status ${state?.emergencyStop ? "status--danger" : ""}`}
-          >
-            {state?.emergencyStop ? "ĐÃ DỪNG" : "SẴN SÀNG"}
+          <span className={`status ${stopped ? "status--danger" : ""}`}>
+            {stopped ? "ĐÃ DỪNG" : "SẴN SÀNG"}
           </span>
         </div>
         <p className="muted">
@@ -99,6 +138,20 @@ const Popup = () => {
         {actionError ? (
           <div aria-live="assertive" className="notice notice--danger">
             {actionError}
+          </div>
+        ) : null}
+        {breaker?.state === "tripped" ? (
+          <div className="notice notice--danger">
+            Cầu dao an toàn đã tự ngắt: {WARNING_REASON_LABELS[breaker.reason]}.
+            Hãy mở Facebook kiểm tra tài khoản bình thường rồi mới bật lại.
+            <button
+              className="button button--secondary button--small"
+              disabled={isToggling}
+              onClick={() => void resetBreaker()}
+              type="button"
+            >
+              Đã kiểm tra — đóng lại cầu dao
+            </button>
           </div>
         ) : null}
         <button

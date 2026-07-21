@@ -93,6 +93,21 @@ const uniqueReasons = (reasons: readonly FilterReason[]): FilterReason[] => [
   ...new Set(reasons),
 ];
 
+// Bug 2026-07-20: bài "người tham gia ẩn danh" lúc đầu hiện dạng rút gọn
+// (chưa có nội dung) trong feed nhóm — Facebook chỉ hiện đủ nội dung sau khi
+// người dùng bấm mở bài. Lần quét đầu (lúc rút gọn) đúng là không đủ chữ nên
+// bị lọc insufficient_text — hợp lý. Nhưng vì postKey đã nằm trong dedupe,
+// lần quét sau (khi nội dung đầy đủ đã hiện) sẽ bị bỏ qua vĩnh viễn nếu không
+// có ngoại lệ này. CHỈ cho xử lý lại khi lý do lọc DUY NHẤT là insufficient_text
+// và nội dung mới thực sự khác — mọi lý do lọc khác (ngoài allowlist, giống
+// spam, người tự tìm việc, trùng kỹ năng team, hết hạn mức...) vẫn bị dedupe
+// như cũ, không xử lý lại.
+const isRetryableInsufficientText = (existing: Lead, post: RawPost): boolean =>
+  existing.status === "filtered_out" &&
+  existing.filterReasons.length === 1 &&
+  existing.filterReasons[0] === "insufficient_text" &&
+  post.text.trim() !== existing.post.text.trim();
+
 const postInput = (post: RawPost) => ({
   postKey: post.postKey,
   text: post.text,
@@ -421,7 +436,14 @@ export class ReadOnlyPipeline {
     const changed: Lead[] = [];
 
     for (const post of posts) {
-      if (await this.#store.hasPost(post.postKey)) continue;
+      const existing = await this.#store.findByPostKey(post.postKey);
+      if (existing === undefined) {
+        // dedupe có thể còn key mồ côi (lead đã bị dọn) — vẫn coi là đã xử lý
+        // để an toàn, giữ đúng hành vi cũ.
+        if (await this.#store.hasPost(post.postKey)) continue;
+      } else if (!isRetryableInsufficientText(existing, post)) {
+        continue;
+      }
       const allowlisted = settings.allowlist.some(
         (group) => group.active && group.groupId === post.groupId,
       );
@@ -437,8 +459,19 @@ export class ReadOnlyPipeline {
         limits: settings.limits,
         now,
       });
-      const lead = detectedLead(post, this.#createId(), at);
-      const detectedAudit = this.#audit("post_detected", at, lead);
+      const lead =
+        existing === undefined
+          ? detectedLead(post, this.#createId(), at)
+          : LeadSchema.parse({
+              ...detectedLead(post, existing.id, existing.createdAt),
+              updatedAt: at,
+            });
+      const detectedAudit = this.#audit(
+        "post_detected",
+        at,
+        lead,
+        existing === undefined ? {} : { reprocessedAfter: "insufficient_text" },
+      );
       let filterReasons = decision.blockReasons.filter(
         (reason): reason is FilterReason => reason !== "emergency_stop",
       );

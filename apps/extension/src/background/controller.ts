@@ -175,12 +175,20 @@ export const handleBackgroundMessage = async (
     ]);
     const senderGroupId =
       senderUrl === undefined ? null : extractGroupId(senderUrl);
-    if (
-      !groupIsAllowlisted(senderUrl, settings) ||
-      senderGroupId !== message.post.groupId ||
-      state.emergencyStop ||
-      state.circuitBreaker.state === "tripped"
-    ) {
+    // P6.7: trước đây bài bị bỏ qua HOÀN TOÀN im lặng — không thể chẩn đoán
+    // "content script gửi rồi mà sao không có lead". Ghi rõ lý do vào console
+    // của service worker (chỉ lý do + nhóm, không ghi nội dung bài).
+    const dropReason = !groupIsAllowlisted(senderUrl, settings)
+      ? "nhóm của tab không nằm trong allowlist"
+      : senderGroupId !== message.post.groupId
+        ? "bài không thuộc nhóm của tab đang mở"
+        : state.emergencyStop
+          ? "Emergency Stop đang bật"
+          : state.circuitBreaker.state === "tripped"
+            ? "cầu dao an toàn đang ngắt"
+            : null;
+    if (dropReason !== null) {
+      console.info(`[FLR] Nền bỏ qua bài: ${dropReason}.`);
       return undefined;
     }
     await ports.pipeline.enqueue(message.post);

@@ -88,3 +88,25 @@ export const parsePostReference = (
 
 export const parsePostKey = (url: string): string | null =>
   parsePostReference(url)?.postKey ?? null;
+
+/**
+ * Lấy định danh nhóm từ URL TRANG (thanh địa chỉ) — có thể là số
+ * (`155221226781882`) hoặc tên chữ (`hoithietkedao.vn`). Dùng làm nguồn chân
+ * lý cho nhóm của một bài, vì Facebook đặt nhóm bằng SỐ trên thanh địa chỉ
+ * nhưng bằng TÊN CHỮ trong permalink bài viết — hai cái không bằng nhau khiến
+ * khớp allowlist thất bại (bug P6.3). Quy tắc trùng khớp `extractGroupId`
+ * trong apps/extension để senderGroupId === post.groupId.
+ */
+export const parseGroupIdFromUrl = (urlValue: string): string | null => {
+  try {
+    const url = new URL(urlValue, FACEBOOK_ORIGIN);
+    if (url.protocol !== "https:" || url.hostname !== "www.facebook.com") {
+      return null;
+    }
+    const parts = url.pathname.split("/").filter(Boolean);
+    if (parts[0] !== "groups" || parts[1] === undefined) return null;
+    return /^[A-Za-z0-9._-]{1,128}$/.test(parts[1]) ? parts[1] : null;
+  } catch {
+    return null;
+  }
+};

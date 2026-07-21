@@ -1,0 +1,63 @@
+diff --git a/apps/extension/src/content/pipeline.test.ts b/apps/extension/src/content/pipeline.test.ts
+index c7f6b65..e20c99e 100644
+--- a/apps/extension/src/content/pipeline.test.ts
++++ b/apps/extension/src/content/pipeline.test.ts
+@@ -140,11 +140,18 @@ describe("ContentScanner P6 chỉ đọc", () => {
+     await scanner.scan();
+     expect(lines).toHaveLength(2);
+ 
++    // P6.8: bài hỏng trích xuất (không có link bài) → dòng ghi rõ MÃ lỗi.
++    document.body.innerHTML = `<div role="article"><div data-ad-preview="message">Cần thuê designer gấp.</div></div>`;
++    await scanner.scan();
++    expect(lines[2]).toBe(
++      "[FLR] Quét: thấy 1 bài, gửi mới 0, lỗi trích xuất 1 (missing_permalink×1).",
++    );
++
+     // Xuất hiện cảnh báo thật → báo rõ lý do dừng.
+     document.body.innerHTML = `<div role="alert">Bạn tạm thời bị chặn</div>`;
+     await scanner.scan();
+-    expect(lines).toHaveLength(3);
+-    expect(lines[2]).toContain("temporarily_blocked");
++    expect(lines).toHaveLength(4);
++    expect(lines[3]).toContain("temporarily_blocked");
+   });
+ 
+   it("render badge điểm trong shadow DOM, không sửa nội dung bài", async () => {
+diff --git a/apps/extension/src/content/pipeline.ts b/apps/extension/src/content/pipeline.ts
+index 5b41970..34a3111 100644
+--- a/apps/extension/src/content/pipeline.ts
++++ b/apps/extension/src/content/pipeline.ts
+@@ -81,6 +81,9 @@ export class ContentScanner {
+     let articleCount = 0;
+     let failureCount = 0;
+     let freshSendCount = 0;
++    // P6.8: đếm theo MÃ lỗi trích xuất (missing_permalink, missing_text...)
++    // để dòng chẩn đoán chỉ đích danh tầng hỏng, không phải đoán.
++    const failureCodes = new Map<string, number>();
+     for (const article of findPostElements(this.ports.root)) {
+       articleCount += 1;
+       const result = extractPost(article, {
+@@ -89,6 +92,7 @@ export class ContentScanner {
+       });
+       if (isExtractionFailure(result)) {
+         failureCount += 1;
++        failureCodes.set(result.code, (failureCodes.get(result.code) ?? 0) + 1);
+         if (!this.#failed.has(article)) {
+           this.#failed.add(article);
+           sends.push(
+@@ -121,8 +125,14 @@ export class ContentScanner {
+       );
+     }
+     await Promise.all(sends);
++    const failureDetail =
++      failureCodes.size === 0
++        ? ""
++        : ` (${[...failureCodes.entries()]
++            .map(([code, count]) => `${code}×${String(count)}`)
++            .join(", ")})`;
+     this.#report(
+-      `[FLR] Quét: thấy ${String(articleCount)} bài, gửi mới ${String(freshSendCount)}, lỗi trích xuất ${String(failureCount)}.`,
++      `[FLR] Quét: thấy ${String(articleCount)} bài, gửi mới ${String(freshSendCount)}, lỗi trích xuất ${String(failureCount)}${failureDetail}.`,
+     );
+   }
+ 

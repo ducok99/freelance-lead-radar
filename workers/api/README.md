@@ -66,3 +66,11 @@ pnpm --filter @flr/api deploy
 ```
 
 `AnthropicProvider` có timeout 15 giây. Provider lỗi hoặc trả JSON sai schema sẽ được retry đúng một lần; nếu vẫn lỗi, API trả `502 ai_unavailable`. Log chỉ có timestamp, route, method, status, latency và số byte đầu vào — không có body, token hoặc key.
+
+## Bản MIỄN PHÍ — Cloudflare Workers AI (P6.2)
+
+Nhà cung cấp thứ ba: `AI_PROVIDER="workers_ai"` chạy model mở ngay trong Worker qua binding `env.AI` (bậc free 10.000 neuron/ngày; vượt thì lỗi, không trừ tiền). **Không cần API key AI** — không có secret AI để lộ; chỉ `TEAM_TOKEN` là secret.
+
+Deploy: `wrangler deploy --env free` (khối `[env.free]` trong `wrangler.toml`). Model đổi qua `WORKERS_AI_CLASSIFY_MODEL` / `WORKERS_AI_DRAFT_MODEL`.
+
+Hướng dẫn từng bước cho người không code: `docs/HUONG-DAN-DEPLOY-FREE.md`.

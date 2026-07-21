@@ -13,7 +13,14 @@ const normalizedPageText = (root: ParentNode): string =>
     .toLowerCase();
 
 const warningText = (root: ParentNode): string => {
+  // P6.7: modal XEM BÀI VIẾT của Facebook cũng là role="dialog" và chứa toàn
+  // bộ nội dung bài + bình luận. Nếu gộp text của nó vào "văn bản cảnh báo",
+  // một bình luận vô hại (vd "bạn thử lại sau nhé") sẽ kích hoạt dừng an toàn
+  // giả — và toàn pipeline chết im lặng. Hộp cảnh báo thật của Facebook không
+  // bao giờ chứa bài viết bên trong, nên: dialog/alert nào chứa role=article
+  // thì bỏ qua khi gom văn bản cảnh báo.
   const explicitWarnings = [...root.querySelectorAll(SELECTORS.warning)]
+    .filter((element) => element.querySelector(SELECTORS.post) === null)
     .map((element) => element.textContent ?? "")
     .join(" ");
   if (explicitWarnings.trim().length > 0) {
@@ -61,8 +68,14 @@ export const detectWarningSignals = (
       add("captcha_detected", "dom");
     }
     const text = warningText(root);
+    // P6.7: bỏ cụm "thử lại sau"/"try again later" đứng một mình — đây là câu
+    // cửa miệng trong toast lỗi thường ngày của Facebook (nhất là khi có ad
+    // blocker chặn request), từng gây BÁO ĐỘNG GIẢ ngắt cầu dao trên trang
+    // hoàn toàn bình thường. Giữ nguyên mọi cụm đặc hiệu của màn chặn thật và
+    // bổ sung cụm rate-limit đặc hiệu "thao tác quá nhanh" — bảo vệ thật
+    // không yếu đi.
     if (
-      /(?:bạn tạm thời bị chặn|you're temporarily blocked|you are temporarily blocked|thử lại sau|try again later)/i.test(
+      /(?:bạn tạm thời bị chặn|you're temporarily blocked|you are temporarily blocked|thao tác quá nhanh|going too fast)/i.test(
         text,
       )
     ) {
