@@ -26,7 +26,7 @@ AI_PROVIDER = "workers_ai"
 EXTENSION_ORIGIN = "chrome-extension://lfkpmdeopncejjnagplhmmebkhojfnag"
 # Đổi model tại đây nếu muốn chất lượng cao hơn / rẻ neuron hơn.
 WORKERS_AI_CLASSIFY_MODEL = "@cf/meta/llama-3.1-8b-instruct-fp8"
-WORKERS_AI_DRAFT_MODEL = "@cf/meta/llama-3.3-70b-instruct-fp8-fast"
+WORKERS_AI_DRAFT_MODEL = "@cf/meta/llama-3.1-8b-instruct-fp8"
 
 [env.free.ai]
 binding = "AI"
@@ -37,9 +37,9 @@ binding = "AI"
 # TEAM_TOKEN/ANTHROPIC_API_KEY luôn đặt bằng `wrangler secret put`.
 [env.production.vars]
 AI_PROVIDER = "anthropic"
-EXTENSION_ORIGIN = "chrome-extension://REPLACE_AFTER_P5"
-ANTHROPIC_CLASSIFY_MODEL = "REPLACE_WITH_APPROVED_CLASSIFY_MODEL"
-ANTHROPIC_DRAFT_MODEL = "REPLACE_WITH_APPROVED_DRAFT_MODEL"
+EXTENSION_ORIGIN = "chrome-extension://lfkpmdeopncejjnagplhmmebkhojfnag"
+ANTHROPIC_CLASSIFY_MODEL = "claude-haiku-4-5-20251001"
+ANTHROPIC_DRAFT_MODEL = "claude-sonnet-5"
 
 [[env.production.ratelimits]]
 name = "API_RATE_LIMITER"
