@@ -400,7 +400,12 @@ describe("ReadOnlyPipeline P6", () => {
     ]);
   });
 
-  it("P6.1: không notify khi bài dưới ngưỡng điểm", async () => {
+  it("P6.11: bài điểm thấp nhưng phân loại thuê freelancer vẫn vào hàng đợi và notify", async () => {
+    // Trước 2026-07-22: bài < 75 điểm bị đẩy sang below_threshold, không
+    // notify — đây chính là nguyên nhân các lead thật (đã phân loại đúng
+    // hiring_freelancer) "mất tích" trong tab Đã lọc dù DUC cần thấy để
+    // không bỏ sót khách. Từ P6.11: điểm không còn quyết định bài có vào
+    // hàng đợi hay không, chỉ classification + hard filter mới quyết định.
     const api: PipelineApiClient = {
       classify: vi.fn((request) =>
         Promise.resolve(classification(request, 40)),
@@ -416,8 +421,9 @@ describe("ReadOnlyPipeline P6", () => {
     await pending;
 
     const [lead] = await pipeline.listLeads();
-    expect(lead?.status).toBe("below_threshold");
-    expect(notify).not.toHaveBeenCalled();
+    expect(lead?.status).toBe("needs_review");
+    expect(lead?.score).toBe(40);
+    expect(notify).toHaveBeenCalledTimes(1);
   });
 
   it("P6.1: notify lỗi không làm hỏng pipeline, lead vẫn được lưu đủ", async () => {

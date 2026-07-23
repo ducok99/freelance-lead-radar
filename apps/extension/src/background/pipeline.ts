@@ -4,6 +4,7 @@ import {
   DraftRequestSchema,
   LeadSchema,
   SCHEMA_VERSION,
+  SCORE_THRESHOLDS,
   type AuditAction,
   type AuditEvent,
   type ClassifyResult,
@@ -671,7 +672,7 @@ export class ReadOnlyPipeline {
     const target =
       postFilter.reasons.length > 0 || postFilter.classificationRejected
         ? "filtered_out"
-        : aggregate.score < 75
+        : aggregate.score < SCORE_THRESHOLDS.ignoreBelow
           ? "below_threshold"
           : "needs_review";
     const reasons =

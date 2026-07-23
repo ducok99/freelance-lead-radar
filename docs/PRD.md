@@ -75,10 +75,14 @@ Lọc cứng giai đoạn 1 + gate từ khóa (rules-engine, chạy local, miễ
 Gửi backend (Cloudflare Worker) → AI phân loại + chấm điểm thành phần + trích xuất + soạn nháp
         │
         ▼
-Lọc cứng giai đoạn 2 + tổng hợp điểm deterministic (rules-engine)
+Lọc cứng giai đoạn 2 (rules-engine): không phải hiring_freelancer hoặc dính hard
+filter → lưu tối giản (dedupe + thống kê), không hiện hàng đợi
         │
-        ├── < 75  → lưu tối giản (dedupe + thống kê), không hiện hàng đợi
-        ├── 75–94 → hàng đợi duyệt kèm bình luận nháp
+        ▼
+Tổng hợp điểm deterministic (rules-engine) — điểm hiển thị để tham khảo/sắp
+xếp, KHÔNG dùng để loại bài khỏi hàng đợi nữa (đổi 2026-07-22, mục 7)
+        │
+        ├── < 95  → hàng đợi duyệt kèm bình luận nháp
         └── ≥ 95  → hàng đợi duyệt + cờ "đủ điều kiện Auto Reply" (MVP vẫn phải duyệt tay)
         │
         ▼
@@ -119,13 +123,27 @@ AI chấm ĐIỂM THÀNH PHẦN + phân loại + trích xuất; **rules-engine t
 
 Điều chỉnh deterministic sau AI: nghi vấn spam mềm −20; nội dung đăng lặp lại −10; `confidence` của AI < 0.85 → điểm cuối bị chặn trần 94 (không bao giờ vào diện Auto Reply).
 
-### Ngưỡng hành động (cố định theo spec)
+### Ngưỡng hành động
 
-| Điểm  | Hành động                                                             |
-| ----- | --------------------------------------------------------------------- |
-| 0–74  | Bỏ qua. Vẫn lưu bản ghi tối giản để dedupe và soát "lead bị bỏ sót"   |
-| 75–94 | Soạn bình luận nháp, đưa vào hàng đợi chờ duyệt                       |
-| ≥ 95  | Chỉ đánh dấu cờ `autoEligible`. **Trong MVP tuyệt đối không tự đăng** |
+> **Cập nhật 2026-07-22 (P6.11, DUC yêu cầu)**: bỏ ngưỡng tối thiểu 75 điểm để
+> vào hàng đợi. Lý do: model AI free hay chấm thiếu vài mục con (ngân
+> sách/gấp/liên hệ) trên bài Facebook ngắn, khiến bài thuê freelancer thật —
+> dù đã phân loại đúng `hiring_freelancer` — bị đẩy nhầm ra khỏi hàng đợi
+> (mất lead thật). Bảng dưới phản ánh hành vi mới; bảng gốc (0–74 bỏ qua /
+> 75–94 hàng đợi / ≥95 auto-eligible) xem lịch sử tại CLAUDE.md mục quyết định
+> ngày 2026-07-22.
+
+| Điểm | Hành động                                                     |
+| ---- | ------------------------------------------------------------- |
+| 0–94 | Soạn bình luận nháp, đưa vào hàng đợi chờ duyệt               |
+| ≥ 95 | Thêm cờ `autoEligible`. **Trong MVP tuyệt đối không tự đăng** |
+
+Bài chỉ bị loại khỏi hàng đợi (không tính vào 2 dòng trên) khi dính hard
+filter (mục 6: `seeking_work`, `fulltime_recruitment`, `ad_or_spam`,
+`free_trial_required`, `no_outsourcing`, không khớp lĩnh vực team...) hoặc AI
+phân loại là `other`/`ad_or_spam` — tức KHÔNG PHẢI đang thuê freelancer. Điểm
+0–100 vẫn tính đủ 6 tiêu chí và hiển thị trên mỗi lead để tham khảo, sắp xếp
+và vẫn là điều kiện của `autoEligible` (Auto Reply, giai đoạn 2).
 
 ### Điều kiện mở tính năng Auto Reply (giai đoạn 2)
 
@@ -165,7 +183,7 @@ Nguyên tắc soạn nháp (AI ở backend, template + ngữ cảnh bài + hồ 
 
 | Metric                                        | Mục tiêu                                         | Cách đo                                 |
 | --------------------------------------------- | ------------------------------------------------ | --------------------------------------- |
-| Precision phân loại lead (≥75 điểm)           | ≥ 90% sau giai đoạn tinh chỉnh                   | Nhãn đúng/sai của người dùng, ≥ 100 mẫu |
+| Precision phân loại lead (vào hàng đợi duyệt) | ≥ 90% sau giai đoạn tinh chỉnh                   | Nhãn đúng/sai của người dùng, ≥ 100 mẫu |
 | Thời gian bài xuất hiện → bình luận được đăng | < 10 phút trong giờ làm việc                     | timestamp seenAt → commentedAt          |
 | Lead hợp lệ/tuần                              | Theo dõi xu hướng (chưa đặt mục tiêu cứng)       | Đếm lead label=đúng                     |
 | Tỷ lệ trích xuất lỗi (adapter)                | < 20%/ngày; vượt → banner cảnh báo đổi giao diện | extractionFailureRate                   |

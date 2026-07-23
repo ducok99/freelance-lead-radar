@@ -69,6 +69,9 @@ const LeadCard = ({ lead, busy, onAction }: LeadCardProps) => {
           <p className="muted">
             {CLASSIFICATION_LABELS[lead.classification]} ·{" "}
             {STATUS_LABELS[lead.status]}
+            {lead.post.postedAtText !== undefined
+              ? ` · Đăng ${lead.post.postedAtText}`
+              : ""}
           </p>
         </div>
         <span className="score">{lead.score}</span>

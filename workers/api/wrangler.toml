@@ -24,9 +24,12 @@ namespace_id = "4702001"
 [env.free.vars]
 AI_PROVIDER = "workers_ai"
 EXTENSION_ORIGIN = "chrome-extension://lfkpmdeopncejjnagplhmmebkhojfnag"
-# Đổi model tại đây nếu muốn chất lượng cao hơn / rẻ neuron hơn.
-WORKERS_AI_CLASSIFY_MODEL = "@cf/meta/llama-3.1-8b-instruct-fp8"
-WORKERS_AI_DRAFT_MODEL = "@cf/meta/llama-3.1-8b-instruct-fp8"
+# P6.14 — Model phải hỗ trợ JSON Mode (response_format). Biến thể `-fp8` KHÔNG
+# hỗ trợ nên đã đổi sang `-fast`: vẫn 8B (rẻ neuron), có JSON Mode, nhanh hơn.
+# Đổi model tại đây nếu muốn chất lượng cao hơn (phải chọn model có JSON Mode —
+# xem danh sách ở docs Workers AI › Features › JSON Mode).
+WORKERS_AI_CLASSIFY_MODEL = "@cf/meta/llama-3.1-8b-instruct-fast"
+WORKERS_AI_DRAFT_MODEL = "@cf/meta/llama-3.1-8b-instruct-fast"
 
 [env.free.ai]
 binding = "AI"

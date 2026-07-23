@@ -85,7 +85,15 @@ export const callProviderWithRetry = async <T>(
     try {
       const output = await call({ attempt, repairInstruction });
       return parse(output);
-    } catch {
+    } catch (error) {
+      // P6.15 — ghi lý do thật của lần gọi AI thất bại để soi qua `wrangler
+      // tail` (trước đây catch để trống nên 502 không kèm nguyên nhân). Chỉ log
+      // thông điệp lỗi, KHÔNG log nội dung bài, để tránh lộ dữ liệu người dùng.
+      console.error(
+        `[FLR] AI attempt ${String(attempt)} failed: ${
+          error instanceof Error ? error.message : String(error)
+        }`,
+      );
       repairInstruction =
         "JSON trước không khớp schema. Trả lại đúng object JSON, đủ trường, không Markdown.";
     }

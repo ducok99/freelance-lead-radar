@@ -57,6 +57,39 @@ describe("P6.2 WorkersAiProvider", () => {
     expect(ai.calls[0]?.model).toBe("@cf/test/draft");
   });
 
+  it("P6.14 bật JSON Mode (response_format json_schema) cho cả classify và draft", async () => {
+    const ai = makeBinding();
+    const provider = new WorkersAiProvider({
+      ai,
+      classifyModel: "@cf/test/classify",
+      draftModel: "@cf/test/draft",
+    });
+
+    await provider.classify(classifyRequest, { attempt: 1 });
+    await provider.draftComment(draftRequest, { attempt: 1 });
+
+    const responseFormatOf = (index: number) =>
+      (
+        ai.calls[index]?.input as {
+          response_format?: { type?: string; json_schema?: unknown };
+        }
+      ).response_format;
+
+    // classify: khung có mảng results bắt buộc.
+    const classifyFormat = responseFormatOf(0);
+    expect(classifyFormat?.type).toBe("json_schema");
+    expect(
+      (classifyFormat?.json_schema as { required?: string[] }).required,
+    ).toContain("results");
+
+    // draft: khung có object draft bắt buộc.
+    const draftFormat = responseFormatOf(1);
+    expect(draftFormat?.type).toBe("json_schema");
+    expect(
+      (draftFormat?.json_schema as { required?: string[] }).required,
+    ).toContain("draft");
+  });
+
   it("phản hồi thiếu trường response → coi là lỗi để retry/502 xử lý tiếp", async () => {
     const provider = new WorkersAiProvider({
       ai: makeBinding({ notResponse: true }),
@@ -67,6 +100,20 @@ describe("P6.2 WorkersAiProvider", () => {
     await expect(
       provider.classify(classifyRequest, { attempt: 1 }),
     ).rejects.toThrow("Invalid Workers AI response");
+  });
+
+  it("P6.15 JSON Mode trả `response` là OBJECT đã parse → giữ nguyên object", async () => {
+    // Cloudflare trả object (không phải chuỗi) khi bật response_format. Provider
+    // phải chuyển tiếp nguyên object cho provider-output parse, không được ném lỗi.
+    const objectResult = { response: { results: [{ postKey: "g:1" }] } };
+    const provider = new WorkersAiProvider({
+      ai: makeBinding(objectResult),
+      classifyModel: "@cf/test/classify",
+      draftModel: "@cf/test/draft",
+    });
+
+    const output = await provider.classify(classifyRequest, { attempt: 1 });
+    expect(output).toEqual({ results: [{ postKey: "g:1" }] });
   });
 });
 

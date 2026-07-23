@@ -125,7 +125,7 @@ export const LeadSchema = z
       context.addIssue({
         code: z.ZodIssueCode.custom,
         path: ["status"],
-        message: "Lead below_threshold phải có score dưới 75",
+        message: `Lead below_threshold phải có score dưới ${SCORE_THRESHOLDS.ignoreBelow}`,
       });
     }
 
@@ -146,7 +146,7 @@ export const LeadSchema = z
       context.addIssue({
         code: z.ZodIssueCode.custom,
         path: ["status"],
-        message: "Trạng thái xử lý lead yêu cầu score từ 75 trở lên",
+        message: `Trạng thái xử lý lead yêu cầu score từ ${SCORE_THRESHOLDS.ignoreBelow} trở lên`,
       });
     }
 

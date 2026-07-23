@@ -109,9 +109,18 @@ describe("P6.1 buildLeadNotifications", () => {
   });
 
   it("chỉ thông báo lead needs_review, bỏ qua trạng thái khác", () => {
+    // P6.11 (2026-07-22): ignoreBelow = 0 nên below_threshold không còn thể
+    // parse hợp lệ qua LeadSchema ở bất kỳ score nào (score luôn >= 0). Lead
+    // cũ lưu từ trước ngày này vẫn có thể còn trạng thái này trong storage,
+    // nên selectNotifiableLeads vẫn phải bỏ qua đúng — ép kiểu thay vì
+    // LeadSchema.parse để mô phỏng dữ liệu cũ đó.
+    const staleBelowThreshold: Lead = {
+      ...makeLead({ status: "needs_review", score: 40 }),
+      status: "below_threshold",
+    };
     const leads = [
       makeLead({ status: "needs_review" }),
-      makeLead({ status: "below_threshold", score: 40 }),
+      staleBelowThreshold,
       makeLead({ status: "filtered_out", score: 0 }),
     ];
     expect(selectNotifiableLeads(leads)).toHaveLength(1);

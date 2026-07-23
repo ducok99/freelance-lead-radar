@@ -181,20 +181,24 @@ describe("LeadSchema", () => {
   });
 
   it("giữ status nhất quán với ngưỡng score", () => {
+    // P6.11 (2026-07-22): ignoreBelow = 0 nên below_threshold không còn có
+    // thể tạo ra hợp lệ ở bất kỳ score nào (score luôn >= 0).
     expect(
       LeadSchema.safeParse({
         ...validLead,
         status: "below_threshold",
-        score: 75,
+        score: 0,
       }).success,
     ).toBe(false);
+    // Điểm thấp không còn chặn trạng thái cần duyệt — chỉ classification và
+    // hard filter (ở tầng pipeline) mới quyết định bài có vào hàng đợi không.
     expect(
       LeadSchema.safeParse({
         ...validLead,
         status: "needs_review",
-        score: 74,
+        score: 0,
       }).success,
-    ).toBe(false);
+    ).toBe(true);
   });
 
   it("updatedAt không được sớm hơn createdAt", () => {

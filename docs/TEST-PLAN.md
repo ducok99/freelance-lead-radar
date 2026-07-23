@@ -59,14 +59,14 @@ Auth 401 / rate limit 429 / payload 413 / batch >10 → 400; JSON AI hỏng → 
 
 ### shared
 
-Parse hợp lệ/không hợp lệ từng schema; default `autoReply.enabled=false`; hằng số ngưỡng 75/94/95 khớp tài liệu (test đọc hằng số so với giá trị văn bản — chống sửa nhầm).
+Parse hợp lệ/không hợp lệ từng schema; default `autoReply.enabled=false`; hằng số ngưỡng 0/94/95 khớp tài liệu (test đọc hằng số so với giá trị văn bản — chống sửa nhầm; `ignoreBelow` đổi 75 → 0 ngày 2026-07-22, P6.11).
 
 ## 5. Kịch bản e2e Playwright (fixture local + mock API)
 
 | ID     | Kịch bản                     | Assert chính                                             |
 | ------ | ---------------------------- | -------------------------------------------------------- |
 | E2E-01 | Nhóm ngoài allowlist         | 0 POST_SEEN, 0 call API                                  |
-| E2E-02 | Feed 10 bài trộn 4 loại      | 3 lead cần duyệt; bài loại có lý do trong tab Đã lọc     |
+| E2E-02 | Feed 10 bài trộn 4 loại      | 4 lead cần duyệt; bài loại có lý do trong tab Đã lọc     |
 | E2E-03 | Chạy lại cùng feed           | 0 call API mới (dedupe)                                  |
 | E2E-04 | P6: sửa nháp → duyệt local   | `editedText` persist + audit; không có nút Chèn/Đăng     |
 | E2E-05 | Chèn 2 lead cách < 5 phút    | Lead 2 bị chặn + thông báo                               |
@@ -78,7 +78,7 @@ Parse hợp lệ/không hợp lệ từng schema; default `autoReply.enabled=fal
 
 ## 6. Đo precision — giao thức chuẩn (điều kiện mở Auto Reply)
 
-- **Đơn vị mẫu**: mọi lead hệ thống đưa vào hàng đợi duyệt (score ≥ 75).
+- **Đơn vị mẫu**: mọi lead hệ thống đưa vào hàng đợi duyệt (trạng thái `needs_review` — từ 2026-07-22 không còn lọc theo score, xem PRD.md mục 7).
 - **Nhãn**: người dùng chọn `Đúng lead` (bài thật sự thuê freelancer, đúng chuyên môn team) hoặc `Sai lead`. Nhãn độc lập với việc có bình luận hay không (bận không comment vẫn phải nhãn được).
 - **Precision** = Đúng / (Đúng + Sai). Bỏ qua lead chưa nhãn khi tính; dashboard hiển thị cả tỷ lệ đã nhãn.
 - **Gate Auto Reply**: n ≥ 100 nhãn thu trong vận hành thật **và** precision ≥ 90%. Dashboard hiển thị tiến độ; không đạt → màn hình gate ghi rõ thiếu gì.
@@ -91,7 +91,7 @@ Parse hợp lệ/không hợp lệ từng schema; default `autoReply.enabled=fal
 
 1. Mở nhóm NGOÀI allowlist, lướt 2 phút → popup hiển thị 0 bài quét (kỳ vọng: extension ngủ).
 2. Mở nhóm trong allowlist, lướt 20 bài → counters tăng; bài rõ ràng spam/tìm việc không xuất hiện trong hàng đợi.
-3. Chọn 1 lead ≥ 75, đọc giải thích điểm, sửa nháp 1 câu, bấm Chèn trên bài đang mở → nội dung nằm trong ô bình luận, CHƯA đăng; tự bấm Đăng; xác nhận status `commented` + audit đủ chuỗi.
+3. Chọn 1 lead trong hàng đợi duyệt, đọc giải thích điểm, sửa nháp 1 câu, bấm Chèn trên bài đang mở → nội dung nằm trong ô bình luận, CHƯA đăng; tự bấm Đăng; xác nhận status `commented` + audit đủ chuỗi.
 4. Mở lại đúng bài đó → không còn nút hành động (dedupe).
 5. Bật Emergency Stop → lướt tiếp 1 phút → 0 hoạt động mới; tắt → hoạt động lại.
 6. Kiểm tra audit log: mọi bước ở trên có mặt, timestamp hợp lý.

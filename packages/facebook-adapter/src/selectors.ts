@@ -13,10 +13,21 @@ export const SELECTORS = {
   // logic xác định "thuộc về bài nào" ở nơi khác.
   post: '[role="article"], [role="feed"] > div',
   feed: '[role="feed"]',
+  // P6.12: hệ quả trực tiếp của P6.9 — bài viết kiểu mới (div thường, không
+  // role="article") thì fallback dir=auto CŨ không tìm thấy gì vì nó đòi hỏi
+  // tổ tiên role="article" (chỉ còn comment giữ role đó). Xác nhận qua file
+  // Facebook thật DUC lưu lại 2026-07-22: 3/7 bài kiểu mới bị "missing_text"
+  // dù đã có permalink đúng. Bỏ tiền tố '[role="article"] ' — an toàn cho bài
+  // kiểu CŨ vì querySelectorAll từ chính article (đã có role="article") vốn
+  // đã tự thoả compound selector đó cho MỌI dir=auto con cháu của nó, nên hành
+  // vi bài kiểu cũ giữ nguyên y hệt (đã kiểm chứng bằng test dòng dưới và mô
+  // phỏng lại toàn bộ extractPost() bằng Python trên dữ liệu Facebook thật).
+  // ownedMatches() ở extract.ts vẫn lọc đúng phạm vi bài viết (không lấy nhầm
+  // nội dung comment lồng bên trong) nên không cần đổi gì thêm ở extract.ts.
   message: [
     '[data-ad-preview="message"]',
     '[data-testid="post_message"]',
-    '[role="article"] [dir="auto"]',
+    '[dir="auto"]',
   ],
   author: ['h2 a[role="link"]', 'h3 a[role="link"]', 'strong a[role="link"]'],
   timestamp: ["time", "abbr", 'a[role="link"] span[aria-label]'],

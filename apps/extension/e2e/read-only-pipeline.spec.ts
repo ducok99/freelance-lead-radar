@@ -206,9 +206,11 @@ test("P6 pipeline chỉ đọc: batch, dedupe, UI review và audit", async () =>
         actions: audits.map((event) => event.action),
       };
     });
+    // P6.11 (2026-07-22): ignoreBelow=0 nên bài 102 (score 72, hiring_freelancer,
+    // trước đây below_threshold) nay cũng vào needs_review → 4 thay vì 3.
     expect(
       summary.leads.filter((lead) => lead.status === "needs_review"),
-    ).toHaveLength(3);
+    ).toHaveLength(4);
     expect(
       summary.leads.find((lead) => lead.post.postKey === "p6fixture:106")
         ?.score,
@@ -222,7 +224,7 @@ test("P6 pipeline chỉ đọc: batch, dedupe, UI review và audit", async () =>
       ]),
     );
     expect(classifyCalls).toBe(1);
-    expect(draftCalls).toBe(3);
+    expect(draftCalls).toBe(4);
 
     await page.reload();
     await page.waitForTimeout(400);
@@ -234,7 +236,7 @@ test("P6 pipeline chỉ đọc: batch, dedupe, UI review và audit", async () =>
     );
     await expect(
       sidePanel.locator('[data-lead-status="needs_review"]'),
-    ).toHaveCount(3);
+    ).toHaveCount(4);
     const first = sidePanel
       .locator('[data-lead-status="needs_review"]')
       .first();

@@ -134,7 +134,7 @@ Không dùng: `tabs`, `cookies`, `webRequest`, `scripting`, `history`, `<all_url
 
 ### 4.3 packages/shared
 
-Zod schema là **nguồn chân lý duy nhất**; type TypeScript infer từ zod (`z.infer`). Chứa: mọi entity (DATA-MODEL.md), message types giữa content ↔ background ↔ UI, request/response API, hằng số ngưỡng (75/94/95), giới hạn mặc định, `SCHEMA_VERSION`.
+Zod schema là **nguồn chân lý duy nhất**; type TypeScript infer từ zod (`z.infer`). Chứa: mọi entity (DATA-MODEL.md), message types giữa content ↔ background ↔ UI, request/response API, hằng số ngưỡng (0/94/95 — `ignoreBelow` đổi từ 75 → 0 ngày 2026-07-22, xem CLAUDE.md mục quyết định P6.11), giới hạn mặc định, `SCHEMA_VERSION`.
 
 ### 4.4 packages/rules-engine
 
